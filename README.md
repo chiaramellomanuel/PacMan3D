@@ -5,7 +5,7 @@
 A high-performance 3D reimagining of the classic Pac-Man, built with **Three.js** and **Vue 3**. This project focuses on bridging a high-frequency 3D engine with a reactive state management system.
 
 ![Status](https://img.shields.io/badge/Status-Core%20Logic%20Complete-green?style=for-the-badge)
-![Tech](https://img.shields.io/badge/Architecture-Three.js%20%2B%20Pinia-blueviolet?style=for-the-badge)
+![Tech](https://img.shields.io/badge/Architecture-Three.js%20%2B%20Pinia%20%2B%20Vue-blueviolet?style=for-the-badge)
 
 ---
 
