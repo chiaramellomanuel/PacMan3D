@@ -1,5 +1,7 @@
 # 🕹️ PacMan3D - WebGPU & Reactive State Experiment
 
+[![Live Demo](https://img.shields.io/badge/demo-online-green?style=for-the-badge&logo=vercel)](https://chiaramellomanuel.github.io/PacMan3D/)
+
 A high-performance 3D reimagining of the classic Pac-Man, built with **Three.js** and **Vue 3**. This project focuses on bridging a high-frequency 3D engine with a reactive state management system.
 
 ![Status](https://img.shields.io/badge/Status-Core%20Logic%20Complete-green?style=for-the-badge)
