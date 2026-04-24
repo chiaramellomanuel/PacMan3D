@@ -24,7 +24,7 @@ export class Ghost {
 
 	private loadModel(color: number, startPos: {x: number, z: number}) {
 		const loader = new GLTFLoader();
-		loader.load('/models/Ghost.glb', (gltf) => {
+		loader.load(`${import.meta.env.BASE_URL}models/Ghost.glb`, (gltf) => {
 			this.mesh = gltf.scene;
 
 			this.mesh.traverse((child) => {

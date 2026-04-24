@@ -18,13 +18,14 @@ export class Map {
 	private	teleportLinks =	new globalThis.Map<string, THREE.Vector3>();
 	private dummy =			new THREE.Object3D();
 	public	onPowerPelletEaten: (() => void) | null = null;
+	// private	baseUrl = import.meta.env.BASE_URL;
 
 	constructor(scene: THREE.Scene) {
 		this.scene = scene;
 	}
 
 	async load() {
-		const response = await fetch('/models/map_data.json');
+		const response = await fetch(`${import.meta.env.BASE_URL}map_data.json`);
 		const data = await response.json();
 
 		this.grid = data.grid;
@@ -67,7 +68,7 @@ export class Map {
 		const loader = new GLTFLoader();
 
 		return new Promise<void>((resolve) => {
-			loader.load('/models/Map_cube.glb', (gltf) => {
+			loader.load(`${import.meta.env.BASE_URL}models/Map_cube.glb`, (gltf) => {
 				let sourceMesh: THREE.Mesh | undefined;
 
 				gltf.scene.traverse((child) => {

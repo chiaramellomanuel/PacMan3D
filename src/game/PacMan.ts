@@ -19,7 +19,7 @@ export class PacMan {
 
 	private loadModel(startPoint: {x: number, z: number}) {
 		const loader = new GLTFLoader();
-		loader.load('/models/PacMan.glb', (gltf) => {
+		loader.load(`${import.meta.env.BASE_URL}models/PacMan.glb`, (gltf) => {
 			this.mesh = gltf.scene;
 			this.mesh.position.set(startPoint.x, 0, startPoint.z);
 			this.mesh.rotation.y = 0;
