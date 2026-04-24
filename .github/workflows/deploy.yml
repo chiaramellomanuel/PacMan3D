@@ -2,7 +2,13 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"] # O "master" a seconda del tuo branch principale
+    branches: ["main"]
+  workflow_dispatch: # Permette di lanciarlo a mano se serve
+
+# Evita che più deploy corrano insieme e creino il conflitto degli "artifacts"
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -19,7 +25,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # Usiamo la versione più recente
           cache: 'npm'
 
       - name: Install dependencies
@@ -31,7 +37,6 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          # Vite di default compila tutto nella cartella 'dist'
           path: 'dist/'
 
   deploy:
