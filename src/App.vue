@@ -10,7 +10,6 @@ const gameStore = useGameStore()
 	<div class="hud">
 		<div class="score">SCORE: {{ gameStore.score }}</div>
 		<div class="lives">LIVES: {{ gameStore.lives }}</div>
-		<button @click="gameStore.incrementScore(10)">Points test</button>
 	</div>
 
 	<GameExperience />
