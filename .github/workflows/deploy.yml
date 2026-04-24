@@ -3,9 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
-  workflow_dispatch: # Permette di lanciarlo a mano se serve
+  workflow_dispatch:
 
-# Evita che più deploy corrano insieme e creino il conflitto degli "artifacts"
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -25,7 +24,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # Usiamo la versione più recente
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
