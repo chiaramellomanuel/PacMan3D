@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-// https://vite.dev/config/
-export default defineConfig({
-  base: '/pacman3d',
-  plugins: [vue()],
+// https://vitejs.dev/config/
+export default defineConfig(({ command }) => {
+  return {
+    base: command === 'build' ? '/PacMan3D/' : '/',
+    plugins: [vue()],
+  }
 })

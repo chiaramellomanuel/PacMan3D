@@ -8,6 +8,7 @@ export class Map {
 	public	grid:			number[][] = [];
 	public	tileSize:		number = 2;
 	private	offset =		{ x: 0, z: 0 };
+	private doorMesh:		THREE.Mesh | null = null;
 	private	wallMesh:		THREE.InstancedMesh | null = null;
 	private	pelletMesh:		THREE.InstancedMesh | null = null;
 	private	powerMesh:		THREE.InstancedMesh | null = null;
@@ -16,8 +17,6 @@ export class Map {
 	private	gameStore =		useGameStore();
 	private	teleportLinks =	new globalThis.Map<string, THREE.Vector3>();
 	private dummy =			new THREE.Object3D();
-	private wallPositions:	THREE.Vector3[] = [];
-	private wallIndices:	(number | null)[][] = [];
 	public	onPowerPelletEaten: (() => void) | null = null;
 
 	constructor(scene: THREE.Scene) {
@@ -36,6 +35,7 @@ export class Map {
 			this.setupTeleportLinks(data.teleports);
 
 		await this.generate();
+		await this.generateDoor();
 		await this.generatePellets();
 	}
 
@@ -93,7 +93,6 @@ export class Map {
 				}
 
 				this.wallMesh = new THREE.InstancedMesh(geometry, material, wallPositions.length);
-
 				wallPositions.forEach((pos, i) => {
 					this.dummy.position.copy(pos);
 					this.dummy.updateMatrix();
@@ -104,6 +103,24 @@ export class Map {
 				resolve();
 			});
 		});
+	}
+
+	private async generateDoor()
+	{
+		const doorPos = this.getDoorPosition();
+
+		if (doorPos.x === 0 && doorPos.z === 0) return;
+
+		const geometry = new THREE.BoxGeometry(this.tileSize, 2, 0.2);
+		const material = new THREE.MeshStandardMaterial({
+			color: 0xadd8e6,
+			transparent: true,
+			opacity: 0.6
+		});
+
+		this.doorMesh = new THREE.Mesh(geometry, material);
+		this.doorMesh.position.set(doorPos.x, 1, doorPos.z);
+		this.scene.add(this.doorMesh);
 	}
 
 	private async generatePellets() {
