@@ -44,9 +44,9 @@ export class PacMan {
 		if (!this.mesh) return;
 
 		const moveStep = this.speed * Math.min(delta, 0.1);
-
 		const posX = this.mesh.position.x;
 		const posZ = this.mesh.position.z;
+
 		const centerX = Math.round(posX / map.tileSize) * map.tileSize;
 		const centerZ = Math.round(posZ / map.tileSize) * map.tileSize;
 
@@ -65,27 +65,25 @@ export class PacMan {
 				);
 				return;
 			}
-		}
-
-		if (this.nextDir !== DIRECTIONS.NONE && this.nextDir !== this.currentDir) {
-			if (distToCenter < 0.3) {
+			
+			if (this.nextDir !== DIRECTIONS.NONE && this.nextDir !== this.currentDir) {
 				const targetX = centerX + this.nextDir.x * map.tileSize;
 				const targetZ = centerZ + this.nextDir.z * map.tileSize;
 
-				if (!map.isWall(targetX, targetZ)) {
-					this.mesh.position.set(centerX, 0, centerZ);
+				if (!map.isWall(targetX, targetZ))
 					this.currentDir = this.nextDir;
-				}
 			}
+
+			const nextX = centerX + this.currentDir.x * map.tileSize;
+			const nextZ = centerZ + this.currentDir.z * map.tileSize;
+			if (map.isWall(nextX, nextZ))
+				this.currentDir = DIRECTIONS.NONE;
 		}
 
-		if (this.currentDir !== DIRECTIONS.NONE) {
-			const nextX = this.mesh.position.x + this.currentDir.x * moveStep;
-			const nextZ = this.mesh.position.z + this.currentDir.z * moveStep;
 
-			if (!map.isWall(nextX, nextZ)) {
-				this.mesh.position.x = nextX;
-				this.mesh.position.z = nextZ;
+		if (this.currentDir !== DIRECTIONS.NONE) {
+				this.mesh.position.x += this.currentDir.x * moveStep;
+				this.mesh.position.z += this.currentDir.z * moveStep;
 
 				if (this.currentDir.z !== 0)
 					this.mesh.position.x += (centerX - this.mesh.position.x) * 0.2;
@@ -93,11 +91,6 @@ export class PacMan {
 					this.mesh.position.z += (centerZ - this.mesh.position.z) * 0.2;
 
 				this.mesh.rotation.y = this.currentDir.angle;
-			}
-			else {
-				this.mesh.position.set(centerX, 0, centerZ);
-				this.currentDir = DIRECTIONS.NONE;
-			}
 		}
 
 		map.checkPellet(this.mesh.position.x, this.mesh.position.z);
