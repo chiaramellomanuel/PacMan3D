@@ -163,8 +163,10 @@ export class Experience {
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		
 		ghosts.forEach(ghost => {
-			ghost?.setFrightened();
-			ghost?.stopFlashing();
+			if (ghost?.state !== GHOST_STATE.EATEN){
+				ghost?.setFrightened();
+				ghost?.stopFlashing();
+			}
 		});
 
 		if (this.powerUpTimer)
