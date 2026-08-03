@@ -1,0 +1,1 @@
+* quando il gioco e' in pausa mentre una power pellet e' attiva i fantasmi tornano normali lo stesso (gestire il timeout)

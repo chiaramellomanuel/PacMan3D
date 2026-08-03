@@ -49,6 +49,10 @@ export const useGameStore = defineStore('game', {
 				this.isGameOver = true
 		},
 		
+		pauseGame() {
+			this.isPaused = !this.isPaused;
+		},
+
 		resetGame() {
 			this.score = 0
 			this.lives = 3
