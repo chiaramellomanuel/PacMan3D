@@ -7,7 +7,7 @@ const gameStore = useGameStore()
 
 <template>
   <main>
-	<div class="hud">
+	<div class="absolute mt-5 ml-5 z-10 pointer-events-none text-yellow-400 font-mono">
 		<div class="score">SCORE: {{ gameStore.score }}</div>
 		<div class="lives">LIVES: {{ gameStore.lives }}</div>
 	</div>
@@ -15,17 +15,3 @@ const gameStore = useGameStore()
 	<GameExperience />
   </main>
 </template>
-
-<style>
-body { margin: 0; }
-.hud {
-	position: absolute;
-	top: 20px;
-	left: 20px;
-	z-index: 10;
-	color: yellow;
-	font-family: 'Courier New', monospace;
-	pointer-events: none;
-}
-button { pointer-events: auto; }
-</style>
