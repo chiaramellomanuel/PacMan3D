@@ -58,6 +58,7 @@ export const useGameStore = defineStore('game', {
 			this.lives = 3
 			this.isGameOver = false
 			this.isLevelClear = false
+			this.isPaused = false;
 		}
 	}
 })
