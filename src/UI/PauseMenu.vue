@@ -12,8 +12,10 @@
 	const	handleMenuClick = (action: string) => {
 		if (action === "resume")
 			gameStore.pauseGame();
-		else if (action === "restart")
-			gameStore.resetGame();
+		else if (action === "restart") {
+			// gameStore.resetGame();
+			window.location.reload();
+		}
 	};
 </script>
 
