@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useGameStore = defineStore('game', {
 	state: () => ({
+		appState: 'MENU',
 		score: 0,
 		highScore: 0,
 		ghostEatenMultiplier: 0,

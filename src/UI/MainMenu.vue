@@ -18,7 +18,6 @@
 		if (action === "play")
 		{
 			gameStore.resetGame();
-			console.log("play");
 		}
 	};
 
@@ -29,12 +28,10 @@
 
 		if (e.key === 'ArrowDown' && selectedIndex.value < (menuButtons.length - 1)) {
 			selectedIndex.value = selectedIndex.value + 1;
-			console.log(selectedIndex.value)
 			lastMoveTime = now;
 		}
 		else if (e.key === 'ArrowUp' && selectedIndex.value > 0) {
 			selectedIndex.value = selectedIndex.value - 1;
-			console.log(selectedIndex.value)
 			lastMoveTime = now;
 		}
 		else if (e.key === 'Enter')
@@ -83,7 +80,7 @@
 </script>
 
 <template>
-	<div class="absolute flex flex-col items-center justify-start z-20 w-full h-full bg-black overflow-hidden">
+	<div class="absolute flex flex-col items-center justify-start z-20 w-full h-full overflow-hidden">
 		<div class="mt-20 mb-10 text-yellow-300 text-9xl font-mono z-30 drop-shadow-[0_0_20px_rgba(250,204,21,0.5)]">
 			PacMan3D
 		</div>
