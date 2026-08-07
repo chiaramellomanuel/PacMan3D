@@ -7,7 +7,8 @@ export const useGameStore = defineStore('game', {
 		ghostEatenMultiplier: 0,
 		lives: 3,
 		pelletsRemaining: 0,
-		isPaused: false,
+		isGameStarted: false,
+		isPaused: true,
 		isGameOver: false,
 		isLevelClear: false
 	}),
@@ -59,6 +60,7 @@ export const useGameStore = defineStore('game', {
 			this.isGameOver = false
 			this.isLevelClear = false
 			this.isPaused = false;
+			this.isGameStarted = true;
 		}
 	}
 })

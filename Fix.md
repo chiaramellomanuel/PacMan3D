@@ -1,6 +1,7 @@
 ## TODO
 
-* Homepage con selezione dei livelli, creazione mappa etc...
+* Play
+	
 
 ---
 
