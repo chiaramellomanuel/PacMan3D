@@ -27,16 +27,33 @@
 
 		if ((now - lastMoveTime) < moveCooldown) return;
 
-		if (e.key === 'ArrowDown') {
-			selectedIndex.value = (selectedIndex.value + 1) % menuButtons.length;
+		if (e.key === 'ArrowDown' && selectedIndex.value < (menuButtons.length - 1)) {
+			selectedIndex.value = selectedIndex.value + 1;
+			console.log(selectedIndex.value)
 			lastMoveTime = now;
 		}
-		else if (e.key === 'ArrowUp') {
-			selectedIndex.value = (selectedIndex.value - 1 + menuButtons.length) % menuButtons.length;
+		else if (e.key === 'ArrowUp' && selectedIndex.value > 0) {
+			selectedIndex.value = selectedIndex.value - 1;
+			console.log(selectedIndex.value)
 			lastMoveTime = now;
 		}
 		else if (e.key === 'Enter')
 			handleMenuClick(menuButtons[selectedIndex.value].action);
+	};
+
+	const	handleWheel = (e: WheelEvent) => {
+		const	now = Date.now();
+
+		if (now - lastMoveTime < moveCooldown) return;
+
+		if (e.deltaY > 0 && selectedIndex.value < (menuButtons.length - 1)) {
+			selectedIndex.value = selectedIndex.value + 1;
+			lastMoveTime = now;
+		}
+		else if (e.deltaY < 0 && selectedIndex.value > 0) {
+			selectedIndex.value = selectedIndex.value - 1;
+			lastMoveTime = now;
+		}
 	};
 
 	const	getItemStyle = (index: number) => {
@@ -55,10 +72,12 @@
 
 	onMounted(() => {
 		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('wheel', handleWheel);
 	});
 
 	onUnmounted(() => {
 		window.removeEventListener('keydown', handleKeyDown);
+		window.removeEventListener('wheel', handleWheel);
 	})
 
 </script>
