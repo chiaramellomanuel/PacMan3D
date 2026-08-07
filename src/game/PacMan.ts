@@ -6,12 +6,12 @@ import { DIRECTIONS } from './Constants'
 
 export class PacMan {
 	public mesh: THREE.Group | null = null;
-	private scene: THREE.Scene;
+	private scene: THREE.Group;
 	public currentDir = DIRECTIONS.NONE;
 	private nextDir = DIRECTIONS.NONE;
 	private speed = 10;
 
-	constructor(scene: THREE.Scene, startPoint: {x: number, z: number}) {
+	constructor(scene: THREE.Group, startPoint: {x: number, z: number}) {
 		this.scene = scene;
 		this.loadModel(startPoint);
 		this.setupInput();

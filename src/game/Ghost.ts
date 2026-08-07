@@ -7,7 +7,7 @@ export class Ghost {
 	public mesh: THREE.Group | null = null;
 	public state: GhostState = GHOST_STATE.IN_BOX;
 	private personality: GhostPersonality;
-	private scene: THREE.Scene;
+	private scene: THREE.Group;
 	private exitTarget: THREE.Vector3 | null = null;
 	private currentDir = DIRECTIONS.RIGHT;
 	private normalSpeed = 8;
@@ -15,7 +15,7 @@ export class Ghost {
 	public originalColor: number;
 	private flashInterval: any = null;
 
-	constructor(scene: THREE.Scene, color: number, startPos: { x: number, z: number }, personality: GhostPersonality) {
+	constructor(scene: THREE.Group, color: number, startPos: { x: number, z: number }, personality: GhostPersonality) {
 		this.scene = scene;
 		this.personality = personality;
 		this.originalColor = color;

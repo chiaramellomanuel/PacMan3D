@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 export const useGameStore = defineStore('game', {
 	state: () => ({
 		appState: 'MENU',
+		previewMapUrl: 'map_data.json',
 		score: 0,
 		highScore: 0,
 		ghostEatenMultiplier: 0,

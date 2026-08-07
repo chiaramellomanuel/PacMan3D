@@ -4,10 +4,10 @@ import { MAP_INDEX } from './Constants'
 import { useGameStore } from '../stores/gameStore'
 
 export class Map {
-	private	scene:			THREE.Scene;
+	private	scene:			THREE.Group;
 	public	grid:			number[][] = [];
 	public	tileSize:		number = 2;
-	private	offset =		{ x: 0, z: 0 };
+	public	offset =		{ x: 0, z: 0 };
 	private doorMesh:		THREE.Mesh | null = null;
 	private	wallMesh:		THREE.InstancedMesh | null = null;
 	private	pelletMesh:		THREE.InstancedMesh | null = null;
@@ -18,14 +18,13 @@ export class Map {
 	private	teleportLinks =	new globalThis.Map<string, THREE.Vector3>();
 	private dummy =			new THREE.Object3D();
 	public	onPowerPelletEaten: (() => void) | null = null;
-	// private	baseUrl = import.meta.env.BASE_URL;
 
-	constructor(scene: THREE.Scene) {
+	constructor(scene: THREE.Group) {
 		this.scene = scene;
 	}
 
-	async load() {
-		const response = await fetch(`${import.meta.env.BASE_URL}map_data.json`);
+	async load(mapUrl: string = 'map_data.json') {
+		const response = await fetch(`${import.meta.env.BASE_URL}${mapUrl}`);
 		const data = await response.json();
 
 		this.grid = data.grid;

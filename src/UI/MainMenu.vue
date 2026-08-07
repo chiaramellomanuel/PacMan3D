@@ -17,7 +17,7 @@
 	const	handleMenuClick = (action: string) => {
 		if (action === "play")
 		{
-			gameStore.resetGame();
+			gameStore.appState = "MAP_PREVIEW";
 		}
 	};
 

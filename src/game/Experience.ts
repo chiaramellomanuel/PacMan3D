@@ -26,19 +26,33 @@ export class Experience {
 	private gameStore = useGameStore();
 	private powerUpTimer: any = null;
 
+	public	mapWrapper: THREE.Group;
+	public	mapContainer: THREE.Group;
+	private	isPreviewMode: boolean = false;
+	private	isTransitioning: boolean = false;
+
 	constructor (container: HTMLElement) {
 		this.scene = new THREE.Scene();
-		this.scene.background = new THREE.Color(0x000000);
+		this.scene.background = new THREE.Color(0x5F5CFF);
 
 		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		this.camera.position.set(0, 30, 20);
+		this.camera.lookAt(0, 0, 0);
 
 		this.renderer = new WebGPURenderer({ antialias: true });
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		container.appendChild(this.renderer.domElement);
 
 		this.timer = new Timer();
+
+		this.mapWrapper = new THREE.Group();
+		this.scene.add(this.mapWrapper);
+
+		this.mapContainer = new THREE.Group();
+		this.mapWrapper.add(this.mapContainer);
+
 		this.setupLights();
-		this.init();
+		this.initEngine();
 
 		window.addEventListener('resize', () => this.onWindowResize());
 	}
@@ -52,26 +66,80 @@ export class Experience {
 		this.scene.add(directLight);
 	}
 
-	private async init() {
+	private async initEngine() {
 		await this.renderer.init();
+		this.startLoop();
+	}
+
+	// private async init() {
+	// 	await this.renderer.init();
 
 		
-		this.map = new Map(this.scene);
-		this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
-		await this.map.load();
+	// 	this.map = new Map(this.scene);
+	// 	this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
+	// 	await this.map.load();
 		
+	// 	this.doorPosition = this.map.getDoorPosition();
+	// 	this.pacmanSpawn = this.map.getPacmanSpawnPoint();
+	// 	this.ghostsSpawn = this.map.getGhostSpawnPoints();
+		
+	// 	this.blinky	= new Ghost(this.scene, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER);
+	// 	this.pinky	= new Ghost(this.scene, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM);
+	// 	this.inky	= new Ghost(this.scene, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM);
+	// 	this.clyde	= new Ghost(this.scene, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM);
+		
+	// 	this.pacman = new PacMan(this.scene, this.pacmanSpawn);
+
+	// 	this.startLoop();
+	// }
+	
+	public async loadMapPreview(mapUrl: string = 'map_data.json') {
+		if (this.map)
+			this.mapContainer.clear();
+
+		this.mapWrapper.scale.set(1, 1, 1);
+		this.mapWrapper.rotation.set(0, 0, 0);
+		this.mapContainer.position.set(0, 0, 0);
+
+		this.isPreviewMode = true;
+		
+		this.map = new Map(this.mapContainer as any);
+		this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
+		await this.map.load(mapUrl);
+		
+		const cols = this.map.grid[0].length;
+		const rows = this.map.grid.length;
+		const tileSize = this.map.tileSize;
+		const offsetX = this.map.offset.x;
+		const offsetZ = this.map.offset.z;
+
+		const centerX = offsetX + ((cols - 1) * tileSize) / 2;
+		const centerZ = offsetZ + ((rows - 1) * tileSize) / 2;
+
+		this.mapContainer.position.set(-centerX, 0, -centerZ);
+		this.mapWrapper.scale.set(0.4, 0.4, 0.4);
+
+	}
+
+	public confirmMap() {
+		this.isPreviewMode = false;
+		this.isTransitioning = true;
+	}
+
+	private startGame() {
+		if (!this.map) return;
+
 		this.doorPosition = this.map.getDoorPosition();
 		this.pacmanSpawn = this.map.getPacmanSpawnPoint();
 		this.ghostsSpawn = this.map.getGhostSpawnPoints();
-		
-		this.blinky	= new Ghost(this.scene, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER);
-		this.pinky	= new Ghost(this.scene, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM);
-		this.inky	= new Ghost(this.scene, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM);
-		this.clyde	= new Ghost(this.scene, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM);
-		
-		this.pacman = new PacMan(this.scene, this.pacmanSpawn);
 
-		this.startLoop();
+		this.blinky	= new Ghost(this.mapContainer as any, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER);
+		this.pinky	= new Ghost(this.mapContainer as any, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM);
+		this.inky	= new Ghost(this.mapContainer as any, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM);
+		this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM);
+	
+		this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
+		this.gameStore.isPaused = false;
 	}
 	
 	private checkCollisions() {
@@ -194,7 +262,35 @@ export class Experience {
 			this.timer.update();
 			const delta = Math.min(this.timer.getDelta(), 0.033);
 
-			if (!this.map || this.gameStore.isPaused) {
+			// --- PREVIEW MODE ---
+			if (this.isPreviewMode){
+				this.mapWrapper.rotation.y -= 0.3 * delta;
+
+				this.camera.position.set(0, 30, 20);
+				this.lookTarget.set(0, 0, 0);
+				this.camera.lookAt(this.lookTarget);
+			}
+
+			// --- TRANSITION MODE ---
+			if (this.isTransitioning) {
+				const lerpFactor = 5 * delta;
+
+				this.mapWrapper.rotation.y = THREE.MathUtils.lerp(this.mapWrapper.rotation.y, 0, lerpFactor);
+				this.mapWrapper.scale.lerp(new THREE.Vector3(1, 1, 1), lerpFactor);
+
+				this.mapContainer.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
+
+				if (Math.abs(this.mapWrapper.rotation.y) < 0.01 && this.mapWrapper.scale.x > 0.99) {
+					this.mapWrapper.rotation.y = 0;
+					this.mapWrapper.scale.set(1, 1, 1);
+					this.mapContainer.position.set(0, 0, 0);
+
+					this.isTransitioning = false;
+					this.startGame();
+				}
+			}
+
+			if (!this.map || this.gameStore.isPaused || this.isPreviewMode || this.isTransitioning) {
 				this.renderer.render(this.scene, this.camera);
 				return;
 			}
@@ -203,6 +299,7 @@ export class Experience {
 			{
 				this.pacman.update(delta, this.map);
 				this.checkCollisions();
+				this.updateGhosts(delta);
 
 				if (this.pacman.mesh) {
 					const pPos = this.pacman.mesh.position;
@@ -220,7 +317,6 @@ export class Experience {
 
 					this.camera.lookAt(this.lookTarget);
 				}
-				this.updateGhosts(delta);
 			}
 			this.renderer.render(this.scene, this.camera);
 		};
