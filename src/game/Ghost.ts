@@ -9,16 +9,19 @@ export class Ghost {
 	private personality: GhostPersonality;
 	private scene: THREE.Group;
 	private exitTarget: THREE.Vector3 | null = null;
-	private currentDir = DIRECTIONS.RIGHT;
+	private currentDir = DIRECTIONS.UP;
 	private normalSpeed = 8;
 	private eatenSpeed = 20;
 	public originalColor: number;
 	private flashInterval: any = null;
 
-	constructor(scene: THREE.Group, color: number, startPos: { x: number, z: number }, personality: GhostPersonality) {
+	constructor(scene: THREE.Group, color: number, startPos: { x: number, z: number }, personality: GhostPersonality, spawnDir: {x: number, z: number, angle: number}) {
 		this.scene = scene;
 		this.personality = personality;
 		this.originalColor = color;
+
+		this.currentDir = spawnDir;
+
 		this.loadModel(color, startPos);
 	}
 
@@ -39,6 +42,7 @@ export class Ghost {
 				}
 			});
 
+			this.mesh.rotation.y = this.currentDir.angle;
 			this.mesh.position.set(startPos.x, 0, startPos.z);
 			this.scene.add(this.mesh);
 		})

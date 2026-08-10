@@ -264,7 +264,7 @@ export class Map {
 
 		for (let row = 0; row < this.grid.length; row++) {
 			for (let col = 0; col < this.grid[row].length; col++) {
-				if (this.grid[row][col] === MAP_INDEX.GHOST_BOX) {
+				if (this.grid[row][col] === MAP_INDEX.GHOST_SPAWN) {
 					points.push({
 						x: col * this.tileSize + this.offset.x,
 						z: row * this.tileSize + this.offset.z

@@ -3,7 +3,7 @@ import { WebGPURenderer, Timer, } from 'three/webgpu'
 import { PacMan } from './PacMan'
 import { Map } from './Map'
 import { Ghost } from './Ghost'
-import { GHOST_PERSONALITY, GHOST_STATE } from './Constants'
+import { GHOST_PERSONALITY, GHOST_STATE, DIRECTIONS } from './Constants'
 import { useGameStore } from '../stores/gameStore'
 
 export class Experience {
@@ -116,6 +116,27 @@ export class Experience {
 		const centerX = offsetX + ((cols - 1) * tileSize) / 2;
 		const centerZ = offsetZ + ((rows - 1) * tileSize) / 2;
 
+		this.doorPosition = this.map.getDoorPosition();
+		this.pacmanSpawn = this.map.getPacmanSpawnPoint();
+		this.ghostsSpawn = this.map.getGhostSpawnPoints();
+
+		const referencePoint = this.ghostsSpawn[2];
+		const dx = this.doorPosition.x - referencePoint.x;
+		const dz = this.doorPosition.z - referencePoint.z;
+
+		let spawnDir = DIRECTIONS.UP;
+		if (Math.abs(dx) > Math.abs(dz))
+			spawnDir = dx > 0 ? DIRECTIONS.RIGHT : DIRECTIONS.LEFT;
+		else
+			spawnDir = dz > 0 ? DIRECTIONS.DOWN : DIRECTIONS.UP;
+
+		this.blinky	= new Ghost(this.mapContainer as any, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER, spawnDir);
+		this.pinky	= new Ghost(this.mapContainer as any, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM, spawnDir);
+		this.inky	= new Ghost(this.mapContainer as any, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM, spawnDir);
+		this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM, spawnDir);
+	
+		this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
+
 		this.mapContainer.position.set(-centerX, 0, -centerZ);
 		this.mapWrapper.scale.set(0.4, 0.4, 0.4);
 
@@ -129,16 +150,16 @@ export class Experience {
 	private startGame() {
 		if (!this.map) return;
 
-		this.doorPosition = this.map.getDoorPosition();
-		this.pacmanSpawn = this.map.getPacmanSpawnPoint();
-		this.ghostsSpawn = this.map.getGhostSpawnPoints();
+		// this.doorPosition = this.map.getDoorPosition();
+		// this.pacmanSpawn = this.map.getPacmanSpawnPoint();
+		// this.ghostsSpawn = this.map.getGhostSpawnPoints();
 
-		this.blinky	= new Ghost(this.mapContainer as any, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER);
-		this.pinky	= new Ghost(this.mapContainer as any, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM);
-		this.inky	= new Ghost(this.mapContainer as any, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM);
-		this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM);
+		// this.blinky	= new Ghost(this.mapContainer as any, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER);
+		// this.pinky	= new Ghost(this.mapContainer as any, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM);
+		// this.inky	= new Ghost(this.mapContainer as any, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM);
+		// this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM);
 	
-		this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
+		// this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
 		this.gameStore.isPaused = false;
 	}
 	
