@@ -96,6 +96,8 @@ export class Experience {
 	public async loadMapPreview(mapUrl: string = 'map_data.json') {
 		if (this.map)
 			this.mapContainer.clear();
+		if (this.pacman)
+			this.pacman.destroy();
 
 		this.mapWrapper.scale.set(1, 1, 1);
 		this.mapWrapper.rotation.set(0, 0, 0);

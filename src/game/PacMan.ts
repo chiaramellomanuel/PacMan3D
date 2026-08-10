@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { Map } from './Map'
 import { DIRECTIONS } from './Constants'
+import { useGameStore } from '../stores/gameStore';
 
 
 export class PacMan {
@@ -10,6 +11,9 @@ export class PacMan {
 	public currentDir = DIRECTIONS.NONE;
 	private nextDir = DIRECTIONS.NONE;
 	private speed = 10;
+	private gameStore = useGameStore();
+
+	private static loadPromise: Promise<THREE.Group> | null = null;
 
 	constructor(scene: THREE.Group, startPoint: {x: number, z: number}) {
 		this.scene = scene;
@@ -17,27 +21,44 @@ export class PacMan {
 		this.setupInput();
 	}
 
-	private loadModel(startPoint: {x: number, z: number}) {
-		const loader = new GLTFLoader();
-		loader.load(`${import.meta.env.BASE_URL}models/PacMan.glb`, (gltf) => {
-			this.mesh = gltf.scene;
-			this.mesh.position.set(startPoint.x, 0, startPoint.z);
-			this.mesh.rotation.y = 0;
-			this.scene.add(this.mesh);
-		});
+	private async loadModel(startPoint: {x: number, z: number}) {
+		if (!PacMan.loadPromise) {
+			PacMan.loadPromise = new Promise((resolve) => {
+				const loader = new GLTFLoader();
+				loader.load(`${import.meta.env.BASE_URL}models/PacMan.glb`, (gltf) => {
+					resolve(gltf.scene);
+				});
+			});
+		}
+
+		const baseModel = await PacMan.loadPromise;
+
+		this.mesh = baseModel.clone();
+
+		this.mesh.position.set(startPoint.x, 0, startPoint.z);
+		this.mesh.rotation.y = 0;
+		this.scene.add(this.mesh);
+	}
+
+	private handleKeyDown = (e: KeyboardEvent) => {
+		if (this.gameStore.isPaused) return;
+
+		switch(e.key.toLowerCase()) {
+			case 'arrowup':		case 'w': this.nextDir = DIRECTIONS.UP; break;
+			case 'arrowdown':	case 's': this.nextDir = DIRECTIONS.DOWN; break;
+			case 'arrowleft':	case 'a': this.nextDir = DIRECTIONS.LEFT; break;
+			case 'arrowright':	case 'd': this.nextDir = DIRECTIONS.RIGHT; break;
+		}
+		if (this.currentDir === DIRECTIONS.NONE) this.currentDir = this.nextDir;
 	}
 
 	private setupInput()
 	{
-		window.addEventListener('keydown', (e) => {
-			switch(e.key.toLowerCase()) {
-				case 'arrowup':		case 'w': this.nextDir = DIRECTIONS.UP; break;
-				case 'arrowdown':	case 's': this.nextDir = DIRECTIONS.DOWN; break;
-				case 'arrowleft':	case 'a': this.nextDir = DIRECTIONS.LEFT; break;
-				case 'arrowright':	case 'd': this.nextDir = DIRECTIONS.RIGHT; break;
-			}
-			if (this.currentDir === DIRECTIONS.NONE) this.currentDir = this.nextDir;
-		});
+		window.addEventListener('keydown', this.handleKeyDown);
+	}
+
+	public destroy() {
+		window.removeEventListener('keydown', this.handleKeyDown);
 	}
 
 	public update(delta: number, map: Map) {

@@ -15,6 +15,8 @@ export class Ghost {
 	public originalColor: number;
 	private flashInterval: any = null;
 
+	private static loadPromise: Promise<THREE.Group> | null = null;
+
 	constructor(scene: THREE.Group, color: number, startPos: { x: number, z: number }, personality: GhostPersonality, spawnDir: {x: number, z: number, angle: number}) {
 		this.scene = scene;
 		this.personality = personality;
@@ -25,27 +27,35 @@ export class Ghost {
 		this.loadModel(color, startPos);
 	}
 
-	private loadModel(color: number, startPos: {x: number, z: number}) {
-		const loader = new GLTFLoader();
-		loader.load(`${import.meta.env.BASE_URL}models/Ghost.glb`, (gltf) => {
-			this.mesh = gltf.scene;
-
-			this.mesh.traverse((child) => {
-				if ((child as THREE.Mesh).isMesh) {
-					const mesh = child as THREE.Mesh;
-					if (mesh.name.toLowerCase().includes('body')) {
-						mesh.material = new THREE.MeshStandardMaterial({
-							color: color,
-							roughness: 0.3
-						});
-					}
-				}
+	private async loadModel(color: number, startPos: {x: number, z: number}) {
+		if (!Ghost.loadPromise) {
+			Ghost.loadPromise = new Promise((resolve) => {
+				const loader = new GLTFLoader();
+				loader.load(`${import.meta.env.BASE_URL}models/Ghost.glb`, (gltf) => {
+					resolve(gltf.scene);
+				});
 			});
+		}
 
-			this.mesh.rotation.y = this.currentDir.angle;
-			this.mesh.position.set(startPos.x, 0, startPos.z);
-			this.scene.add(this.mesh);
-		})
+		const baseModel = await Ghost.loadPromise;
+
+		this.mesh = baseModel.clone();
+
+		this.mesh.traverse((child) => {
+			if ((child as THREE.Mesh).isMesh) {
+				const mesh = child as THREE.Mesh;
+				if (mesh.name.toLowerCase().includes('body')) {
+					mesh.material = new THREE.MeshStandardMaterial({
+						color: color,
+						roughness: 0.3
+					});
+				}
+			}
+		});
+
+		this.mesh.rotation.y = this.currentDir.angle;
+		this.mesh.position.set(startPos.x, 0, startPos.z);
+		this.scene.add(this.mesh);
 	}
 
 	public update(delta: number, map: Map, target?: THREE.Vector3) {
