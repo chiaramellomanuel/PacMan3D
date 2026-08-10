@@ -21,9 +21,7 @@
 
 	watch(() => gameStore.appState, (newState) => {
 		if (experience) {
-			if (newState === 'PLAYING')
-				experience.confirmMap();
-			else if (newState === 'MAP_PREVIEW')
+			if (newState === 'MAP_PREVIEW')
 				experience.loadMapPreview(gameStore.previewMapUrl);
 		}
 	});

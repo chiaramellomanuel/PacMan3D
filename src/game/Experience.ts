@@ -28,8 +28,6 @@ export class Experience {
 
 	public	mapWrapper: THREE.Group;
 	public	mapContainer: THREE.Group;
-	private	isPreviewMode: boolean = false;
-	private	isTransitioning: boolean = false;
 
 	constructor (container: HTMLElement) {
 		this.scene = new THREE.Scene();
@@ -70,28 +68,6 @@ export class Experience {
 		await this.renderer.init();
 		this.startLoop();
 	}
-
-	// private async init() {
-	// 	await this.renderer.init();
-
-		
-	// 	this.map = new Map(this.scene);
-	// 	this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
-	// 	await this.map.load();
-		
-	// 	this.doorPosition = this.map.getDoorPosition();
-	// 	this.pacmanSpawn = this.map.getPacmanSpawnPoint();
-	// 	this.ghostsSpawn = this.map.getGhostSpawnPoints();
-		
-	// 	this.blinky	= new Ghost(this.scene, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER);
-	// 	this.pinky	= new Ghost(this.scene, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM);
-	// 	this.inky	= new Ghost(this.scene, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM);
-	// 	this.clyde	= new Ghost(this.scene, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM);
-		
-	// 	this.pacman = new PacMan(this.scene, this.pacmanSpawn);
-
-	// 	this.startLoop();
-	// }
 	
 	public async loadMapPreview(mapUrl: string = 'map_data.json') {
 		if (this.map)
@@ -102,8 +78,6 @@ export class Experience {
 		this.mapWrapper.scale.set(1, 1, 1);
 		this.mapWrapper.rotation.set(0, 0, 0);
 		this.mapContainer.position.set(0, 0, 0);
-
-		this.isPreviewMode = true;
 		
 		this.map = new Map(this.mapContainer as any);
 		this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
@@ -143,30 +117,9 @@ export class Experience {
 		this.mapWrapper.scale.set(0.4, 0.4, 0.4);
 
 	}
-
-	public confirmMap() {
-		this.isPreviewMode = false;
-		this.isTransitioning = true;
-	}
-
-	private startGame() {
-		if (!this.map) return;
-
-		// this.doorPosition = this.map.getDoorPosition();
-		// this.pacmanSpawn = this.map.getPacmanSpawnPoint();
-		// this.ghostsSpawn = this.map.getGhostSpawnPoints();
-
-		// this.blinky	= new Ghost(this.mapContainer as any, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER);
-		// this.pinky	= new Ghost(this.mapContainer as any, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM);
-		// this.inky	= new Ghost(this.mapContainer as any, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM);
-		// this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM);
-	
-		// this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
-		this.gameStore.isPaused = false;
-	}
 	
 	private checkCollisions() {
-		if (!this.pacman?.mesh || this.gameStore.isPaused || this.gameStore.isGameOver) return;
+		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING" || this.gameStore.isPaused || this.gameStore.isGameOver) return;
 
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		const pacmanPos = this.pacman.mesh.position;
@@ -286,7 +239,7 @@ export class Experience {
 			const delta = Math.min(this.timer.getDelta(), 0.033);
 
 			// --- PREVIEW MODE ---
-			if (this.isPreviewMode){
+			if (this.gameStore.appState === "MAP_PREVIEW"){
 				this.mapWrapper.rotation.y -= 0.3 * delta;
 
 				this.camera.position.set(0, 30, 20);
@@ -295,25 +248,42 @@ export class Experience {
 			}
 
 			// --- TRANSITION MODE ---
-			if (this.isTransitioning) {
+			if (this.gameStore.appState === "TRANSITIONING") {
 				const lerpFactor = 5 * delta;
+
+				//Calculating fastest rotational route to 0
+				let currentRot = this.mapWrapper.rotation.y % (Math.PI * 2);
+				if (currentRot < -Math.PI) currentRot += Math.PI * 2;
+				if (currentRot > Math.PI) currentRot -= Math.PI * 2;
+				this.mapWrapper.rotation.y = currentRot;
 
 				this.mapWrapper.rotation.y = THREE.MathUtils.lerp(this.mapWrapper.rotation.y, 0, lerpFactor);
 				this.mapWrapper.scale.lerp(new THREE.Vector3(1, 1, 1), lerpFactor);
-
 				this.mapContainer.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
+
+				if (this.pacmanSpawn) {
+					const targetCamPos = new THREE.Vector3(
+						this.pacmanSpawn.x,
+						30,
+						this.pacmanSpawn.z + 20
+					);
+
+					this.camera.position.lerp(targetCamPos, lerpFactor);
+
+					this.lookTarget.lerp(this.pacmanSpawn, lerpFactor);
+					this.camera.lookAt(this.lookTarget);
+				}
 
 				if (Math.abs(this.mapWrapper.rotation.y) < 0.01 && this.mapWrapper.scale.x > 0.99) {
 					this.mapWrapper.rotation.y = 0;
 					this.mapWrapper.scale.set(1, 1, 1);
 					this.mapContainer.position.set(0, 0, 0);
 
-					this.isTransitioning = false;
-					this.startGame();
+					this.gameStore.appState = "PLAYING";
 				}
 			}
 
-			if (!this.map || this.gameStore.isPaused || this.isPreviewMode || this.isTransitioning) {
+			if (!this.map || this.gameStore.appState !== "PLAYING" || this.gameStore.isPaused) {
 				this.renderer.render(this.scene, this.camera);
 				return;
 			}

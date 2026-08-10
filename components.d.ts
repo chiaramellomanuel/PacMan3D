@@ -14,6 +14,9 @@ declare module 'vue' {
     GameExperience: typeof import('./src/components/GameExperience.vue')['default']
     GameHUD: typeof import('./src/components/GameHUD.vue')['default']
     IMdiHeart: typeof import('~icons/mdi/heart')['default']
+    IPixelarticonsArrowLeftBox: typeof import('~icons/pixelarticons/arrow-left-box')['default']
+    IPixelarticonsArrowRightBox: typeof import('~icons/pixelarticons/arrow-right-box')['default']
+    IPixelarticonsArrowRightBoxSharp: typeof import('~icons/pixelarticons/arrow-right-box-sharp')['default']
     IPixelarticonsHeart: typeof import('~icons/pixelarticons/heart')['default']
     IPixelarticonsPause: typeof import('~icons/pixelarticons/pause')['default']
   }

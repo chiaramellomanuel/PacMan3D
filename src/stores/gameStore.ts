@@ -10,7 +10,7 @@ export const useGameStore = defineStore('game', {
 		lives: 3,
 		pelletsRemaining: 0,
 		isGameStarted: false,
-		isPaused: true,
+		isPaused: false,
 		isGameOver: false,
 		isLevelClear: false
 	}),

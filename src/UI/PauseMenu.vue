@@ -12,7 +12,7 @@
 	const	handleMenuClick = (action: string) => {
 		if (action === "resume")
 			gameStore.pauseGame();
-		else (action === "restart") //temporary solution
+		else if (action === "restart") //temporary solution
 			window.location.reload();
 	};
 </script>
