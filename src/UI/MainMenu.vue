@@ -8,10 +8,10 @@
 	const	moveCooldown = 100;
 
 	const	menuButtons = [
-		{ label: 'Play', action: 'play' },
-		{ label: 'Leaderboard', action: 'leaderboard' },
-		{ label: 'Stats', action: 'stats' },
-		{ label: 'Settings', action: 'settings' }
+		{ label: '/UI/MainMenu/Play_text.png', action: 'play' },
+		{ label: '/UI/MainMenu/Leaderboard_text.png', action: 'leaderboard' },
+		{ label: '/UI/MainMenu/Stats_text.png', action: 'stats' },
+		{ label: '/UI/MainMenu/Settings_text.png', action: 'settings' }
 	];
 
 	const	handleMenuClick = (action: string) => {
@@ -80,20 +80,24 @@
 </script>
 
 <template>
-	<div class="absolute flex flex-col items-center justify-start z-20 w-full h-full overflow-hidden">
-		<div class="mt-20 mb-10 text-yellow-300 text-9xl font-mono z-30 drop-shadow-[0_0_20px_rgba(250,204,21,0.5)]">
-			PacMan3D
-		</div>
+	<div class="absolute flex flex-col items-center justify-center z-20 w-full h-full overflow-hidden">
+		<img
+			src="/UI/MainMenu/Title_text.png"
+			alt="Title"
+		/>
 
-		<div class="relative w-full h-125 mt-10">
+		<div class="relative flex justify-center w-full h-125 mt-10">
 			<button
 				v-for="(btn, index) in menuButtons"
 				:key="btn.label"
 				:style="getItemStyle(index)"
 				@click="handleMenuClick(btn.action)"
-				class="absolute w-full text-center text-7xl font-mono text-yellow-300 transition-all duration-300 ease-out hover:cursor-pointer outline-none"
+				class="absolute transition-all duration-300 ease-out hover:cursor-pointer outline-none"
 			>
-				{{ btn.label }}
+				<img
+					:src="btn.label"
+					:alt="btn.action"
+				/>
 			</button>
 		</div>
 	</div>

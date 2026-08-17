@@ -14,7 +14,7 @@
 		}
 	});
 
-	watch(() => gameStore.previewMapUrl, (newUrl) => {
+	watch(() => gameStore.selectedMapId, (newUrl) => {
 		if (experience)
 			experience.loadMapPreview(newUrl);
 	});
@@ -22,7 +22,7 @@
 	watch(() => gameStore.appState, (newState) => {
 		if (experience) {
 			if (newState === 'MAP_PREVIEW')
-				experience.loadMapPreview(gameStore.previewMapUrl);
+				experience.loadMapPreview(gameStore.selectedMapId);
 		}
 	});
 </script>

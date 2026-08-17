@@ -11,7 +11,7 @@
 				<img
 					v-for="n in gameStore.lives"
 					:key="n"
-					src="/Life.png"
+					src="/UI/InGame/Life.png"
 					class="w-12 h-12"
 					alt="Life"
 				/>

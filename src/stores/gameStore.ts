@@ -1,9 +1,20 @@
 import { defineStore } from 'pinia'
 
+export interface MapManifest {
+	id: string;
+	name: string;
+	author: string;
+}
+
 export const useGameStore = defineStore('game', {
 	state: () => ({
 		appState: 'MENU',
-		previewMapUrl: 'map_data.json',
+
+		selectedMapId: 'map_data.json',
+		avaiableMaps: [
+
+		],
+
 		score: 0,
 		highScore: 0,
 		ghostEatenMultiplier: 0,
