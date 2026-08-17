@@ -28,6 +28,10 @@ export class Experience {
 
 	public	mapWrapper: THREE.Group;
 	public	mapContainer: THREE.Group;
+	public	leftWrapper: THREE.Group;
+	public	leftContainer: THREE.Group;
+	public	rightWrapper: THREE.Group;
+	public	rightContainer:	THREE.Group;
 
 	constructor (container: HTMLElement) {
 		this.scene = new THREE.Scene();
@@ -45,9 +49,18 @@ export class Experience {
 
 		this.mapWrapper = new THREE.Group();
 		this.scene.add(this.mapWrapper);
-
 		this.mapContainer = new THREE.Group();
 		this.mapWrapper.add(this.mapContainer);
+
+		this.leftWrapper = new THREE.Group();
+		this.scene.add(this.leftWrapper);
+		this.leftContainer = new THREE.Group();
+		this.leftWrapper.add(this.leftContainer);
+
+		this.rightWrapper = new THREE.Group();
+		this.scene.add(this.rightWrapper);
+		this.rightContainer = new THREE.Group();
+		this.rightWrapper.add(this.rightContainer);
 
 		this.setupLights();
 		this.initEngine();
