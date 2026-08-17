@@ -23,9 +23,10 @@ export class Map {
 		this.scene = scene;
 	}
 
-	async load(mapUrl: string = 'map_data.json') {
-		const response = await fetch(`${import.meta.env.BASE_URL}${mapUrl}`);
-		const data = await response.json();
+	async load(mapId: string = 'level_01') {
+		const data = await this.gameStore.fetchMapData(mapId);
+
+		if (!data) return;
 
 		this.grid = data.grid;
 		this.tileSize = data.tileSize;

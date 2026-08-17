@@ -4,16 +4,19 @@ export interface MapManifest {
 	id: string;
 	name: string;
 	author: string;
+	fileUrl: string;
 }
 
 export const useGameStore = defineStore('game', {
 	state: () => ({
 		appState: 'MENU',
 
-		selectedMapId: 'map_data.json',
+		selectedMapId: 'level_01',
 		avaiableMaps: [
-
-		],
+			{ id: 'level_01', name: 'Level 01', author: 'Official', fileUrl: '/maps/level_01.json' }
+		] as MapManifest[],
+		
+		loadedMapData: {} as Record<string, any>,
 
 		score: 0,
 		highScore: 0,
@@ -26,6 +29,29 @@ export const useGameStore = defineStore('game', {
 		isLevelClear: false
 	}),
 	actions: {
+
+		async fetchMapData(mapId: string) {
+			if (this.loadedMapData[mapId]) return this.loadedMapData[mapId];
+
+			const mapConfig = this.avaiableMaps.find(m => m.id === mapId);
+			if (!mapConfig) {
+				console.error(`Map ${mapId} not found`);
+				return null;
+			}
+
+			try {
+				const response = await fetch(mapConfig.fileUrl);
+				if (!response.ok) throw new Error('Network response was not ok');
+				const data = await response.json();
+
+				this.loadedMapData[mapId] = data;
+				return data;
+			} catch (error) {
+				console.error("Map data loading error:", error);
+				return null;
+			}
+		},
+
 		pelletEaten(points: number = 10) {
 			this.score += points
 			this.pelletsRemaining--
