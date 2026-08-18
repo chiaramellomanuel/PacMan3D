@@ -11,7 +11,7 @@ export const useGameStore = defineStore('game', {
 	state: () => ({
 		appState: 'MENU',
 
-		selectedMapId: 'level_02',
+		selectedMapId: 'level_01',
 		avaiableMaps: [
 			{ id: 'level_01', name: 'Level 01', author: 'Official', fileUrl: '/maps/level_01.json' },
 			{ id: 'level_02', name: 'Level 02', author: 'Official', fileUrl: '/maps/level_02.json' }
@@ -36,7 +36,8 @@ export const useGameStore = defineStore('game', {
 			if (total <= 1) return state.selectedMapId;
 
 			const currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
-			const prevIndex = (currentIndex - 1 + total) % total;
+			if (currentIndex === 0) return state.selectedMapId;
+			const prevIndex = currentIndex - 1;
 
 			return state.avaiableMaps[prevIndex].id;
 		},
@@ -46,7 +47,8 @@ export const useGameStore = defineStore('game', {
 			if (total <= 1) return state.selectedMapId;
 
 			const currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
-			const nextIndex = (currentIndex + 1) % total;
+			if (currentIndex === state.avaiableMaps.length - 1) return state.selectedMapId;
+			const nextIndex = currentIndex + 1;
 
 			return state.avaiableMaps[nextIndex].id;
 		}
