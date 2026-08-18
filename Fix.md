@@ -1,6 +1,7 @@
 ## TODO
 
-* Play
+* Premere INVIO per selezionare la mappa nella map preview
+* Utilizzare wasd e le frecce destra e sinistra della tastiera per cambiare mappa nella preview
 	
 
 ---

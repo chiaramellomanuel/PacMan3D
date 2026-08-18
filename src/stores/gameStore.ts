@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export type appState = 'MENU' | 'MAP_PREVIEW' | 'TRANSITIONING' | 'PLAYING' | 'GAME_OVER';
+export type appState = 'MENU' | 'MAP_PREVIEW' | 'MAP_PREVIEW_NEXT' | 'MAP_PREVIEW_PREV' | 'TRANSITIONING' | 'PLAYING' | 'GAME_OVER';
 
 export interface MapManifest {
 	id: string;

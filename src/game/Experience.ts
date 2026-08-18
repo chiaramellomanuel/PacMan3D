@@ -103,18 +103,18 @@ export class Experience {
 
 		await Promise.all(loadPromises);
 
-		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, 0);
+		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, 0, 0.6);
 		this.mapWrapper.visible = true;
 		
 		if (prevId !== currentId) {
-			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, -30);
+			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, -30, 0.3);
 			this.leftWrapper.visible = true;
 		}
 		else
 			this.leftWrapper.visible = false;
 
 		if (nextId !== currentId) {
-			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, 30);
+			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, 30, 0.3);
 			this.rightWrapper.visible = true;
 		}
 		else
@@ -144,7 +144,7 @@ export class Experience {
 		this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
 	}
 	
-	private setupPreviewVisual(map: Map, container: THREE.Group, wrapper: THREE.Group, posX: number) {
+	private setupPreviewVisual(map: Map, container: THREE.Group, wrapper: THREE.Group, posX: number, scaleMult: number) {
 		const cols = map.grid[0].length;
 		const rows = map.grid.length;
 		const tileSize = map.tileSize;
@@ -156,10 +156,18 @@ export class Experience {
 
 		container.position.set(-centerX, 0, -centerZ);
 
-		wrapper.scale.set(0.4, 0.4, 0.4);
-		wrapper.position.set(posX, 0, 0);
+		const factor = this.getResponsiveFactor();
+		const finalScale = scaleMult * factor;
+		const finalPosX = posX * factor;
+
+		wrapper.scale.set(finalScale, finalScale, finalScale);
+		wrapper.position.set(finalPosX, 0, 0);
 		wrapper.rotation.set(0, 0, 0);
 		wrapper.visible = true;
+	}
+
+	private getResponsiveFactor(): number {
+		return Math.min(Math.max(window.innerWidth / 1920, 0.6), 1);
 	}
 
 	private checkCollisions() {
@@ -274,9 +282,59 @@ export class Experience {
 		this.camera.aspect = window.innerWidth / window.innerHeight;
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+		if (this.gameStore.appState === "MAP_PREVIEW") {
+			const factor = this.getResponsiveFactor();
+
+			this.mapWrapper.scale.setScalar(0.6 * factor);
+			this.mapWrapper.position.set(0, 0, 0);
+
+			this.leftWrapper.scale.setScalar(0.3 * factor);
+			this.leftWrapper.position.set(-30 * factor, 0, 0);
+
+			this.rightWrapper.scale.setScalar(0.3 * factor);
+			this.rightWrapper.position.set(30 * factor, 0, 0);
+		}
 	}
 
 	private mapPreview(delta: number) {
+		if (this.gameStore.appState === "MAP_PREVIEW_NEXT") {
+			const lerpFactor = 7 * delta;
+			const factor = this.getResponsiveFactor();
+			const targetSideScale = 0.3 * factor;
+			const targetCenterScale = 0.6 * factor;
+
+			this.leftWrapper.position.lerp(new THREE.Vector3(-60  * factor, 0, 0), lerpFactor);
+			this.mapWrapper.position.lerp(new THREE.Vector3(-30 * factor, 0, 0), lerpFactor);
+			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
+			this.rightWrapper.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
+			this.rightWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
+
+			this.rotationToZero(lerpFactor);
+			if (this.rightWrapper.position.x <= 0.1) {
+				this.gameStore.selectedMapId = this.gameStore.nextMapId;
+				this.gameStore.appState = "MAP_PREVIEW";
+			}
+		}
+		else if (this.gameStore.appState === "MAP_PREVIEW_PREV") {
+			const lerpFactor = 7 * delta;
+			const factor = this.getResponsiveFactor();
+			const targetSideScale = 0.3 * factor;
+			const targetCenterScale = 0.6 * factor;
+
+			this.leftWrapper.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
+			this.leftWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
+			this.mapWrapper.position.lerp(new THREE.Vector3(30 * factor, 0, 0), lerpFactor);
+			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
+			this.rightWrapper.position.lerp(new THREE.Vector3(60 * factor, 0, 0), lerpFactor);
+
+			this.rotationToZero(lerpFactor);
+			if (this.leftWrapper.position.x >= -0.1) {
+				this.gameStore.selectedMapId = this.gameStore.prevMapId;
+				this.gameStore.appState = "MAP_PREVIEW";
+			}
+		}
+
 		this.mapWrapper.rotation.y -= 0.3 * delta;
 
 		this.camera.position.set(0, 30, 20);
@@ -332,7 +390,10 @@ export class Experience {
 			this.timer.update();
 			const delta = Math.min(this.timer.getDelta(), 0.033);
 
-			if (this.gameStore.appState === "MAP_PREVIEW")
+			if (this.gameStore.appState === "MAP_PREVIEW" ||
+				this.gameStore.appState === "MAP_PREVIEW_NEXT" ||
+				this.gameStore.appState === "MAP_PREVIEW_PREV"
+			)
 				this.mapPreview(delta);
 
 			if (this.gameStore.appState === "TRANSITIONING")
