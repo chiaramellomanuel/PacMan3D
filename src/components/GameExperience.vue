@@ -14,15 +14,15 @@
 		}
 	});
 
-	watch(() => gameStore.selectedMapId, (newUrl) => {
+	watch(() => gameStore.selectedMapId, () => {
 		if (experience)
-			experience.loadMapPreview(newUrl);
+			experience.loadMapPreview(gameStore.prevMapId, gameStore.selectedMapId, gameStore.nextMapId);
 	});
 
 	watch(() => gameStore.appState, (newState) => {
 		if (experience) {
 			if (newState === 'MAP_PREVIEW')
-				experience.loadMapPreview(gameStore.selectedMapId);
+				experience.loadMapPreview(gameStore.prevMapId, gameStore.selectedMapId, gameStore.nextMapId);
 		}
 	});
 </script>

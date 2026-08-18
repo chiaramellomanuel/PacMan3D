@@ -82,29 +82,46 @@ export class Experience {
 		this.startLoop();
 	}
 	
-	public async loadMapPreview(mapUrl: string = 'map_data.json') {
-		if (this.map)
-			this.mapContainer.clear();
+	public async loadMapPreview(prevId: string, currentId: string, nextId: string) {
+		this.leftContainer.clear();
+		this.mapContainer.clear();
+		this.rightContainer.clear();
 		if (this.pacman)
 			this.pacman.destroy();
 
-		this.mapWrapper.scale.set(1, 1, 1);
-		this.mapWrapper.rotation.set(0, 0, 0);
-		this.mapContainer.position.set(0, 0, 0);
-		
+		const prevMap = new Map(this.leftContainer as any);
 		this.map = new Map(this.mapContainer as any);
-		this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
-		await this.map.load(mapUrl);
+		const nextMap = new Map(this.rightContainer as any);
+
+		const loadPromises: Promise<void>[] = [];
+		loadPromises.push(this.map.load(currentId));
+
+		if (prevId !== currentId)
+			loadPromises.push(prevMap.load(prevId));
+		if (nextId !== currentId)
+			loadPromises.push(nextMap.load(nextId));
+
+		await Promise.all(loadPromises);
+
+		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, 0);
+		this.mapWrapper.visible = true;
 		
-		const cols = this.map.grid[0].length;
-		const rows = this.map.grid.length;
-		const tileSize = this.map.tileSize;
-		const offsetX = this.map.offset.x;
-		const offsetZ = this.map.offset.z;
+		if (prevId !== currentId) {
+			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, -30);
+			this.leftWrapper.visible = true;
+		}
+		else
+			this.leftWrapper.visible = false;
 
-		const centerX = offsetX + ((cols - 1) * tileSize) / 2;
-		const centerZ = offsetZ + ((rows - 1) * tileSize) / 2;
+		if (nextId !== currentId) {
+			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, 30);
+			this.rightWrapper.visible = true;
+		}
+		else
+			this.rightWrapper.visible = false;
 
+		this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
+		
 		this.doorPosition = this.map.getDoorPosition();
 		this.pacmanSpawn = this.map.getPacmanSpawnPoint();
 		this.ghostsSpawn = this.map.getGhostSpawnPoints();
@@ -125,12 +142,26 @@ export class Experience {
 		this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM, spawnDir);
 	
 		this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
-
-		this.mapContainer.position.set(-centerX, 0, -centerZ);
-		this.mapWrapper.scale.set(0.4, 0.4, 0.4);
-
 	}
 	
+	private setupPreviewVisual(map: Map, container: THREE.Group, wrapper: THREE.Group, posX: number) {
+		const cols = map.grid[0].length;
+		const rows = map.grid.length;
+		const tileSize = map.tileSize;
+		const offsetX = map.offset.x;
+		const offsetZ = map.offset.z;
+
+		const centerX = offsetX + ((cols - 1) * tileSize) / 2;
+		const centerZ = offsetZ + ((rows - 1) * tileSize) / 2;
+
+		container.position.set(-centerX, 0, -centerZ);
+
+		wrapper.scale.set(0.4, 0.4, 0.4);
+		wrapper.position.set(posX, 0, 0);
+		wrapper.rotation.set(0, 0, 0);
+		wrapper.visible = true;
+	}
+
 	private checkCollisions() {
 		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING" || this.gameStore.isPaused || this.gameStore.isGameOver) return;
 
@@ -262,6 +293,9 @@ export class Experience {
 
 			// --- TRANSITION MODE ---
 			if (this.gameStore.appState === "TRANSITIONING") {
+				this.leftWrapper.visible = false;
+				this.rightWrapper.visible = false;
+
 				const lerpFactor = 5 * delta;
 
 				//Calculating fastest rotational route to 0

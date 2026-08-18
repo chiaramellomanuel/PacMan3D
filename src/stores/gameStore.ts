@@ -11,9 +11,10 @@ export const useGameStore = defineStore('game', {
 	state: () => ({
 		appState: 'MENU',
 
-		selectedMapId: 'level_01',
+		selectedMapId: 'level_02',
 		avaiableMaps: [
-			{ id: 'level_01', name: 'Level 01', author: 'Official', fileUrl: '/maps/level_01.json' }
+			{ id: 'level_01', name: 'Level 01', author: 'Official', fileUrl: '/maps/level_01.json' },
+			{ id: 'level_02', name: 'Level 02', author: 'Official', fileUrl: '/maps/level_02.json' }
 		] as MapManifest[],
 		
 		loadedMapData: {} as Record<string, any>,
@@ -28,6 +29,29 @@ export const useGameStore = defineStore('game', {
 		isGameOver: false,
 		isLevelClear: false
 	}),
+
+	getters: {
+		prevMapId: (state) => {
+			const total = state.avaiableMaps.length;
+			if (total <= 1) return state.selectedMapId;
+
+			const currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
+			const prevIndex = (currentIndex - 1 + total) % total;
+
+			return state.avaiableMaps[prevIndex].id;
+		},
+
+		nextMapId: state => {
+			const total = state.avaiableMaps.length;
+			if (total <= 1) return state.selectedMapId;
+
+			const currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
+			const nextIndex = (currentIndex + 1) % total;
+
+			return state.avaiableMaps[nextIndex].id;
+		}
+	},
+
 	actions: {
 
 		async fetchMapData(mapId: string) {
