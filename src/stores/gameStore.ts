@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+export type appState = 'MENU' | 'MAP_PREVIEW' | 'TRANSITIONING' | 'PLAYING' | 'GAME_OVER';
+
 export interface MapManifest {
 	id: string;
 	name: string;
@@ -9,7 +11,7 @@ export interface MapManifest {
 
 export const useGameStore = defineStore('game', {
 	state: () => ({
-		appState: 'MENU',
+		appState: 'MENU' as appState,
 
 		selectedMapId: 'level_01',
 		avaiableMaps: [

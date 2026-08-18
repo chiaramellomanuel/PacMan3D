@@ -11,11 +11,13 @@
 <template>
 	<div class="absolute inset-0 w-full h-full z-20 px-12 text-yellow-300 text-7xl font-mono">
 		<button
+			@click="gameStore.selectedMapId = gameStore.prevMapId"
 			class="absolute left-12 top-1/2 -translate-y-1/2 transition-all duration-100 hover:cursor-pointer hover:scale-110 active:scale-90 outline-none"
 		>
 			<i-pixelarticons-arrow-left-box />
 		</button>
 		<button
+			@click="gameStore.selectedMapId = gameStore.nextMapId"
 			class="absolute right-12 top-1/2 -translate-y-1/2 transition-all duration-100 hover:cursor-pointer hover:scale-110 active:scale-90 outline-none"
 		>
 			<i-pixelarticons-arrow-right-box />

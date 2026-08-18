@@ -275,6 +275,56 @@ export class Experience {
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 	}
+
+	private mapPreview(delta: number) {
+		this.mapWrapper.rotation.y -= 0.3 * delta;
+
+		this.camera.position.set(0, 30, 20);
+		this.lookTarget.set(0, 0, 0);
+		this.camera.lookAt(this.lookTarget);
+	}
+
+	private transitionToGame(delta: number) {
+		this.leftWrapper.visible = false;
+		this.rightWrapper.visible = false;
+
+		const lerpFactor = 5 * delta;
+
+		this.rotationToZero(lerpFactor);
+
+		this.mapWrapper.scale.lerp(new THREE.Vector3(1, 1, 1), lerpFactor);
+		this.mapContainer.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
+
+		if (this.pacmanSpawn) {
+			const targetCamPos = new THREE.Vector3(
+				this.pacmanSpawn.x,
+				30,
+				this.pacmanSpawn.z + 20
+			);
+
+			this.camera.position.lerp(targetCamPos, lerpFactor);
+			this.lookTarget.lerp(this.pacmanSpawn, lerpFactor);
+			this.camera.lookAt(this.lookTarget);
+		}
+
+		if (Math.abs(this.mapWrapper.rotation.y) < 0.01 && this.mapWrapper.scale.x > 0.99) {
+			this.mapWrapper.rotation.y = 0;
+			this.mapWrapper.scale.set(1, 1, 1);
+			this.mapContainer.position.set(0, 0, 0);
+
+			this.gameStore.appState = "PLAYING";
+		}
+	}
+
+	//Calculates fastest rotation route to 0
+	private rotationToZero(lerpFactor: number) {
+		let currentRot = this.mapWrapper.rotation.y % (Math.PI * 2);
+		if (currentRot < -Math.PI) currentRot += Math.PI * 2;
+		if (currentRot > Math.PI) currentRot -= Math.PI *2;
+		this.mapWrapper.rotation.y = currentRot;
+
+		this.mapWrapper.rotation.y = THREE.MathUtils.lerp(this.mapWrapper.rotation.y, 0, lerpFactor);
+	}
 	
 	private startLoop() {
 		const animate = () => {
@@ -282,53 +332,11 @@ export class Experience {
 			this.timer.update();
 			const delta = Math.min(this.timer.getDelta(), 0.033);
 
-			// --- PREVIEW MODE ---
-			if (this.gameStore.appState === "MAP_PREVIEW"){
-				this.mapWrapper.rotation.y -= 0.3 * delta;
+			if (this.gameStore.appState === "MAP_PREVIEW")
+				this.mapPreview(delta);
 
-				this.camera.position.set(0, 30, 20);
-				this.lookTarget.set(0, 0, 0);
-				this.camera.lookAt(this.lookTarget);
-			}
-
-			// --- TRANSITION MODE ---
-			if (this.gameStore.appState === "TRANSITIONING") {
-				this.leftWrapper.visible = false;
-				this.rightWrapper.visible = false;
-
-				const lerpFactor = 5 * delta;
-
-				//Calculating fastest rotational route to 0
-				let currentRot = this.mapWrapper.rotation.y % (Math.PI * 2);
-				if (currentRot < -Math.PI) currentRot += Math.PI * 2;
-				if (currentRot > Math.PI) currentRot -= Math.PI * 2;
-				this.mapWrapper.rotation.y = currentRot;
-
-				this.mapWrapper.rotation.y = THREE.MathUtils.lerp(this.mapWrapper.rotation.y, 0, lerpFactor);
-				this.mapWrapper.scale.lerp(new THREE.Vector3(1, 1, 1), lerpFactor);
-				this.mapContainer.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
-
-				if (this.pacmanSpawn) {
-					const targetCamPos = new THREE.Vector3(
-						this.pacmanSpawn.x,
-						30,
-						this.pacmanSpawn.z + 20
-					);
-
-					this.camera.position.lerp(targetCamPos, lerpFactor);
-
-					this.lookTarget.lerp(this.pacmanSpawn, lerpFactor);
-					this.camera.lookAt(this.lookTarget);
-				}
-
-				if (Math.abs(this.mapWrapper.rotation.y) < 0.01 && this.mapWrapper.scale.x > 0.99) {
-					this.mapWrapper.rotation.y = 0;
-					this.mapWrapper.scale.set(1, 1, 1);
-					this.mapContainer.position.set(0, 0, 0);
-
-					this.gameStore.appState = "PLAYING";
-				}
-			}
+			if (this.gameStore.appState === "TRANSITIONING")
+				this.transitionToGame(delta);
 
 			if (!this.map || this.gameStore.appState !== "PLAYING" || this.gameStore.isPaused) {
 				this.renderer.render(this.scene, this.camera);
@@ -345,7 +353,7 @@ export class Experience {
 					const pPos = this.pacman.mesh.position;
 					const cameraHeight = 30;
 					const offsetZ = 20;
-					const lerpFactor = 0.1;
+					const lerpFactor = 5 * delta;
 
 					this.camera.position.x += (pPos.x - this.camera.position.x) * lerpFactor;
 					this.camera.position.z += ((pPos.z + offsetZ) - this.camera.position.z) * lerpFactor;
