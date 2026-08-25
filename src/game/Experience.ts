@@ -184,7 +184,7 @@ export class Experience {
 	}
 
 	private checkCollisions() {
-		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING" || this.gameStore.isPaused || this.gameStore.isGameOver) return;
+		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING" || this.gameStore.isGameOver) return;
 
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		const pacmanPos = this.pacman.mesh.position;
@@ -209,7 +209,7 @@ export class Experience {
 	}
 
 	private handlePlayerDeath() {
-		this.gameStore.isPaused = true;
+		this.gameStore.appState = "PAUSED";
 		this.gameStore.loseLife();
 
 		if (this.gameStore.isGameOver) {
@@ -220,7 +220,7 @@ export class Experience {
 		else {
 			setTimeout(() => {
 				this.resetPositions();
-				this.gameStore.isPaused = false;
+				this.gameStore.appState = "PLAYING";
 			}, 1500);
 		}
 	}
@@ -407,7 +407,7 @@ export class Experience {
 			if (this.gameStore.appState === "TRANSITIONING")
 				this.transitionToGame(delta);
 
-			if (!this.map || this.gameStore.appState !== "PLAYING" || this.gameStore.isPaused) {
+			if (!this.map || this.gameStore.appState !== "PLAYING") {
 				this.renderer.render(this.scene, this.camera);
 				return;
 			}

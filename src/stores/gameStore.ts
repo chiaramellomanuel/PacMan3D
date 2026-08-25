@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export type appState = 'MENU' | 'MAP_PREVIEW' | 'MAP_PREVIEW_NEXT' | 'MAP_PREVIEW_PREV' | 'TRANSITIONING' | 'PLAYING' | 'GAME_OVER';
+export type appState = 'MENU' | 'MAP_PREVIEW' | 'MAP_PREVIEW_NEXT' | 'MAP_PREVIEW_PREV' | 'TRANSITIONING' | 'PLAYING' | 'PAUSED' | 'GAME_OVER';
 
 export interface MapManifest {
 	id: string;
@@ -27,7 +27,6 @@ export const useGameStore = defineStore('game', {
 		lives: 3,
 		pelletsRemaining: 0,
 		isGameStarted: false,
-		isPaused: false,
 		isGameOver: false,
 		isLevelClear: false
 	}),
@@ -116,17 +115,12 @@ export const useGameStore = defineStore('game', {
 			if (this.lives === 0)
 				this.isGameOver = true
 		},
-		
-		pauseGame() {
-			this.isPaused = !this.isPaused;
-		},
 
 		resetGame() {
-			this.score = 0
-			this.lives = 3
-			this.isGameOver = false
-			this.isLevelClear = false
-			this.isPaused = false;
+			this.score = 0;
+			this.lives = 3;
+			this.isGameOver = false;
+			this.isLevelClear = false;
 			this.isGameStarted = true;
 		}
 	}

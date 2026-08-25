@@ -12,5 +12,5 @@
 	<MainMenu v-if="gameStore.appState === 'MENU'"/>
 	<MapSelection v-if="gameStore.appState === 'MAP_PREVIEW'" />
 	<InGameUI v-if="gameStore.appState === 'PLAYING'"/>
-	<PauseMenu v-if="gameStore.isPaused && gameStore.appState === 'PLAYING'"/>
+	<PauseMenu v-if="gameStore.appState === 'PAUSED'"/>
 </template>

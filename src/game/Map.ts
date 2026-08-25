@@ -239,7 +239,7 @@ export class Map {
 			const cell = this.grid[row][col];
 			if (cell === MAP_INDEX.WALL) return true;
 
-			if (!isGhost && (cell === MAP_INDEX.GHOST_BOX || cell === MAP_INDEX.GHOST_SPAWN)) return true;
+			if (!isGhost && (cell === MAP_INDEX.GHOST_BOX || cell === MAP_INDEX.GHOST_SPAWN || cell === MAP_INDEX.GHOST_DOOR)) return true;
 
 			return false;
 		}

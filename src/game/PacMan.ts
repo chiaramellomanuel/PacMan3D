@@ -41,7 +41,7 @@ export class PacMan {
 	}
 
 	private handleKeyDown = (e: KeyboardEvent) => {
-		if (this.gameStore.isPaused) return;
+		if (this.gameStore.appState !== "PLAYING") return;
 
 		switch(e.key.toLowerCase()) {
 			case 'arrowup':		case 'w': this.nextDir = DIRECTIONS.UP; break;
