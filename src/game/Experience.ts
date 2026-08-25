@@ -83,18 +83,16 @@ export class Experience {
 	}
 	
 	public async loadMapPreview(prevId: string, currentId: string, nextId: string) {
-		this.leftContainer.clear();
-		this.mapContainer.clear();
-		this.rightContainer.clear();
-		if (this.pacman)
-			this.pacman.destroy();
+		const	tempLeft = new THREE.Group();
+		const	tempCenter = new THREE.Group();
+		const	tempRight = new THREE.Group();
 
-		const prevMap = new Map(this.leftContainer as any);
-		this.map = new Map(this.mapContainer as any);
-		const nextMap = new Map(this.rightContainer as any);
+		const	prevMap = new Map(tempLeft as any);
+		const	currentMap = new Map(tempCenter as any);
+		const	nextMap = new Map(tempRight as any);
 
 		const loadPromises: Promise<void>[] = [];
-		loadPromises.push(this.map.load(currentId));
+		loadPromises.push(currentMap.load(currentId));
 
 		if (prevId !== currentId)
 			loadPromises.push(prevMap.load(prevId));
@@ -102,6 +100,18 @@ export class Experience {
 			loadPromises.push(nextMap.load(nextId));
 
 		await Promise.all(loadPromises);
+
+		this.leftContainer.clear();
+		this.mapContainer.clear();
+		this.rightContainer.clear;
+		if (this.pacman)
+			this.pacman.destroy();
+
+		this.leftContainer.add(...tempLeft.children);
+		this.mapContainer.add(...tempCenter.children);
+		this.rightContainer.add(...tempRight.children);
+
+		this.map = currentMap;
 
 		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, 0, 0.6);
 		this.mapWrapper.visible = true;
