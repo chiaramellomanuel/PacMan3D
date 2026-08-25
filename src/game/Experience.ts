@@ -24,7 +24,7 @@ export class Experience {
 	private pacmanSpawn = new THREE.Vector3;
 	private ghostsSpawn: THREE.Vector3[] | null = null;
 	private gameStore = useGameStore();
-	private powerUpTimer: any = null;
+	private powerUpTimer: number = 0;
 
 	public	mapWrapper: THREE.Group;
 	public	mapContainer: THREE.Group;
@@ -261,6 +261,17 @@ export class Experience {
 				this.ghostTimer = 0;
 			}
 		}
+
+		if (this.powerUpTimer > 0) {
+			this.powerUpTimer -= delta;
+
+			if (this.powerUpTimer <= 3 && (this.powerUpTimer + delta) > 3)
+				ghosts.forEach(g => g?.setFlashing());
+		}
+		else if (this.powerUpTimer < 0) {
+			ghosts.forEach(g => g?.setNormal());
+			this.powerUpTimer = 0;
+		}
 		
 		ghosts.forEach(g => {
 			if (g) g.update(delta, this.map!, pacmanPos);
@@ -271,24 +282,14 @@ export class Experience {
 		this.gameStore.resetGhostMultiplier();
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		
+		this.powerUpTimer = 10;
+
 		ghosts.forEach(ghost => {
 			if (ghost?.state !== GHOST_STATE.EATEN){
 				ghost?.setFrightened();
 				ghost?.stopFlashing();
 			}
 		});
-
-		if (this.powerUpTimer)
-			clearTimeout(this.powerUpTimer);
-
-		this.powerUpTimer = setTimeout(() => {
-			ghosts.forEach(ghost => ghost?.setFlashing());
-
-			this.powerUpTimer = setTimeout(() => {
-				ghosts.forEach(ghost => ghost?.setNormal())
-				this.powerUpTimer = null;
-			}, 3000);
-		}, 7000);
 	}
 
 	private onWindowResize() {
