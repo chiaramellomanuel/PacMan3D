@@ -264,4 +264,13 @@ export class Ghost {
 			}
 		});
 	}
+
+	public destroy() {
+		this.stopFlashing();
+
+		if (this.mesh) {
+			this.scene.remove(this.mesh);
+			this.mesh = null;
+		}
+	}
 }

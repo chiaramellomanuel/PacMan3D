@@ -104,8 +104,11 @@ export class Experience {
 		this.leftContainer.clear();
 		this.mapContainer.clear();
 		this.rightContainer.clear;
-		if (this.pacman)
-			this.pacman.destroy();
+		if (this.pacman) this.pacman.destroy();
+		if (this.blinky) this.blinky.destroy();
+		if (this.pinky) this.pinky.destroy();
+		if (this.inky) this.inky.destroy();
+		if (this.clyde) this.clyde.destroy();
 
 		this.leftContainer.add(...tempLeft.children);
 		this.mapContainer.add(...tempCenter.children);
@@ -308,12 +311,12 @@ export class Experience {
 	}
 
 	private mapPreview(delta: number) {
-		if (this.gameStore.appState === "MAP_PREVIEW_NEXT") {
-			const lerpFactor = 7 * delta;
-			const factor = this.getResponsiveFactor();
-			const targetSideScale = 0.3 * factor;
-			const targetCenterScale = 0.6 * factor;
+		const	lerpFactor = 14 * delta;
+		const	factor = this.getResponsiveFactor();
+		const	targetSideScale = 0.3 * factor;
+		const	targetCenterScale = 0.6 * factor;
 
+		if (this.gameStore.appState === "MAP_PREVIEW_NEXT") {
 			this.leftWrapper.position.lerp(new THREE.Vector3(-60  * factor, 0, 0), lerpFactor);
 			this.mapWrapper.position.lerp(new THREE.Vector3(-30 * factor, 0, 0), lerpFactor);
 			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
@@ -327,11 +330,6 @@ export class Experience {
 			}
 		}
 		else if (this.gameStore.appState === "MAP_PREVIEW_PREV") {
-			const lerpFactor = 7 * delta;
-			const factor = this.getResponsiveFactor();
-			const targetSideScale = 0.3 * factor;
-			const targetCenterScale = 0.6 * factor;
-
 			this.leftWrapper.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
 			this.leftWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
 			this.mapWrapper.position.lerp(new THREE.Vector3(30 * factor, 0, 0), lerpFactor);

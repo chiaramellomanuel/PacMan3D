@@ -14,11 +14,6 @@
 		}
 	});
 
-	watch(() => gameStore.selectedMapId, () => {
-		if (experience)
-			experience.loadMapPreview(gameStore.prevMapId, gameStore.selectedMapId, gameStore.nextMapId);
-	});
-
 	watch(() => gameStore.appState, (newState) => {
 		if (experience) {
 			if (newState === 'MAP_PREVIEW')

@@ -59,6 +59,11 @@ export class PacMan {
 
 	public destroy() {
 		window.removeEventListener('keydown', this.handleKeyDown);
+		
+		if (this.mesh) {
+			this.scene.remove(this.mesh);
+			this.mesh = null;
+		}
 	}
 
 	public update(delta: number, map: Map) {
