@@ -13,7 +13,6 @@ export class Ghost {
 	private normalSpeed = 8;
 	private eatenSpeed = 20;
 	public originalColor: number;
-	private flashInterval: any = null;
 
 	private static loadPromise: Promise<THREE.Group> | null = null;
 
@@ -209,37 +208,25 @@ export class Ghost {
 		this.updateAppearance(0x0000ff);
 	}
 
-	public setFlashing() {
+	public setFlashing(color: number) {
 		if (this.state !== GHOST_STATE.FRIGHTENED) return;
 
-		let isWhite = false;
-		this.flashInterval = setInterval(() => {
-			isWhite = !isWhite;
-			this.updateAppearance(isWhite ? 0xffffff : 0x0000ff);
-		}, 200);
+		this.updateAppearance(color);
 	}
 
 	public setNormal() {
 		if (this.state !== GHOST_STATE.FRIGHTENED) return;
 
-		this.stopFlashing();
 		this.state = GHOST_STATE.HUNTING;
 		this.updateAppearance(this.originalColor);
 	}
 
 	public beEaten(doorPos: THREE.Vector3) {
-		this.stopFlashing();
 		this.exitTarget = doorPos;
 		this.state = GHOST_STATE.EATEN;
 		this.updateAppearance(null);
 	}
 
-	public stopFlashing() {
-		if (this.flashInterval) {
-			clearInterval(this.flashInterval);
-			this.flashInterval = null;
-		}
-	}
 	public updateAppearance(color: number | null) {
 		this.mesh?.traverse((child) => {
 			if ((child as THREE.Mesh).isMesh) {
@@ -266,8 +253,6 @@ export class Ghost {
 	}
 
 	public destroy() {
-		this.stopFlashing();
-
 		if (this.mesh) {
 			this.scene.remove(this.mesh);
 			this.mesh = null;

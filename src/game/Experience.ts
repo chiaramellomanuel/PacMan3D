@@ -25,6 +25,7 @@ export class Experience {
 	private ghostsSpawn: THREE.Vector3[] | null = null;
 	private gameStore = useGameStore();
 	private powerUpTimer: number = 0;
+	private flashTimer: number = 0;
 
 	public	mapWrapper: THREE.Group;
 	public	mapContainer: THREE.Group;
@@ -237,7 +238,6 @@ export class Experience {
 				const spawn = this.ghostsSpawn[index];
 				ghost.mesh?.position.set(spawn.x, 0, spawn.z);
 				ghost.state = GHOST_STATE.IN_BOX;
-				ghost.stopFlashing();
 				ghost.updateAppearance(ghost.originalColor);
 			}
 		});
@@ -265,8 +265,15 @@ export class Experience {
 		if (this.powerUpTimer > 0) {
 			this.powerUpTimer -= delta;
 
-			if (this.powerUpTimer <= 3 && (this.powerUpTimer + delta) > 3)
-				ghosts.forEach(g => g?.setFlashing());
+			if (this.powerUpTimer <= 3) {
+				this.flashTimer += delta;
+				if (this.flashTimer >= 0.2 && this.flashTimer < 0.4)
+					ghosts.forEach(g => g?.setFlashing(0xffffff));
+				else if (this.flashTimer >= 0.4) {
+					this.flashTimer = 0;
+					ghosts.forEach(g => g?.setFlashing(0x0000ff));
+				}
+			}
 		}
 		else if (this.powerUpTimer < 0) {
 			ghosts.forEach(g => g?.setNormal());
@@ -287,7 +294,6 @@ export class Experience {
 		ghosts.forEach(ghost => {
 			if (ghost?.state !== GHOST_STATE.EATEN){
 				ghost?.setFrightened();
-				ghost?.stopFlashing();
 			}
 		});
 	}
