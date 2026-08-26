@@ -17,7 +17,7 @@
 	watch(() => gameStore.appState, (newState) => {
 		if (experience) {
 			if (newState === 'MAP_PREVIEW')
-				experience.loadMapPreview(gameStore.prevMapId, gameStore.selectedMapId, gameStore.nextMapId);
+				experience.loadMapPreview(gameStore.prevMapId, gameStore.selectedMapId, gameStore.nextMapId, gameStore.prevprevMapId, gameStore.nextnextMapId);
 		}
 	});
 </script>

@@ -34,6 +34,10 @@ export class Experience {
 	public	leftContainer: THREE.Group;
 	public	rightWrapper: THREE.Group;
 	public	rightContainer:	THREE.Group;
+	public	farLeftContainer: THREE.Group;
+	public	farLeftWrapper: THREE.Group;
+	public	farRightContainer: THREE.Group;
+	public	farRightWrapper: THREE.Group;
 
 	constructor (container: HTMLElement) {
 		this.scene = new THREE.Scene();
@@ -64,6 +68,16 @@ export class Experience {
 		this.rightContainer = new THREE.Group();
 		this.rightWrapper.add(this.rightContainer);
 
+		this.farLeftWrapper = new THREE.Group();
+		this.scene.add(this.farLeftWrapper);
+		this.farLeftContainer = new THREE.Group();
+		this.farLeftWrapper.add(this.farLeftContainer);
+
+		this.farRightWrapper = new THREE.Group();
+		this.scene.add(this.farRightWrapper);
+		this.farRightContainer = new THREE.Group();
+		this.farRightWrapper.add(this.farRightContainer);
+
 		this.setupLights();
 		this.initEngine();
 
@@ -84,14 +98,18 @@ export class Experience {
 		this.startLoop();
 	}
 	
-	public async loadMapPreview(prevId: string, currentId: string, nextId: string) {
+	public async loadMapPreview(prevId: string, currentId: string, nextId: string, prevprevId: string, nextnextId: string) {
 		const	tempLeft = new THREE.Group();
 		const	tempCenter = new THREE.Group();
 		const	tempRight = new THREE.Group();
+		const	tempFarLeft = new THREE.Group();
+		const	tempFarRight = new THREE.Group();
 
 		const	prevMap = new Map(tempLeft as any);
 		const	currentMap = new Map(tempCenter as any);
 		const	nextMap = new Map(tempRight as any);
+		const	prevprevMap = new Map(tempFarLeft as any);
+		const	nextnextMap = new Map(tempFarRight as any);
 
 		const loadPromises: Promise<void>[] = [];
 		loadPromises.push(currentMap.load(currentId));
@@ -100,12 +118,18 @@ export class Experience {
 			loadPromises.push(prevMap.load(prevId));
 		if (nextId !== currentId)
 			loadPromises.push(nextMap.load(nextId));
+		if (prevprevId != currentId)
+			loadPromises.push(prevprevMap.load(prevprevId));
+		if (nextnextId != currentId)
+			loadPromises.push(nextnextMap.load(nextnextId));
 
 		await Promise.all(loadPromises);
 
 		this.leftContainer.clear();
 		this.mapContainer.clear();
-		this.rightContainer.clear;
+		this.rightContainer.clear();
+		this.farLeftContainer.clear();
+		this.farRightContainer.clear();
 		if (this.pacman) this.pacman.destroy();
 		if (this.blinky) this.blinky.destroy();
 		if (this.pinky) this.pinky.destroy();
@@ -115,25 +139,32 @@ export class Experience {
 		this.leftContainer.add(...tempLeft.children);
 		this.mapContainer.add(...tempCenter.children);
 		this.rightContainer.add(...tempRight.children);
+		this.farLeftContainer.add(...tempFarLeft.children);
+		this.farRightContainer.add(...tempFarRight.children);
 
 		this.map = currentMap;
 
 		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, 0, 0.6);
-		this.mapWrapper.visible = true;
 		
-		if (prevId !== currentId) {
+		if (prevId !== currentId)
 			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, -30, 0.3);
-			this.leftWrapper.visible = true;
-		}
 		else
 			this.leftWrapper.visible = false;
 
-		if (nextId !== currentId) {
+		if (nextId !== currentId)
 			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, 30, 0.3);
-			this.rightWrapper.visible = true;
-		}
 		else
 			this.rightWrapper.visible = false;
+
+		if (prevprevId !== currentId)
+			this.setupPreviewVisual(prevprevMap, this.farLeftContainer, this.farLeftWrapper, -120, 0.3);
+		else
+			this.farLeftWrapper.visible = false;
+
+		if (nextnextId !== currentId)
+			this.setupPreviewVisual(nextnextMap, this.farRightContainer, this.farRightWrapper, 120, 0.3);
+		else
+			this.farRightWrapper.visible = false;
 
 		this.map.onPowerPelletEaten = () => this.triggerPowerPellet();
 		
@@ -321,11 +352,12 @@ export class Experience {
 		const	targetCenterScale = 0.6 * factor;
 
 		if (this.gameStore.appState === "MAP_PREVIEW_NEXT") {
-			this.leftWrapper.position.lerp(new THREE.Vector3(-60  * factor, 0, 0), lerpFactor);
+			this.leftWrapper.position.lerp(new THREE.Vector3(-120  * factor, 0, 0), lerpFactor);
 			this.mapWrapper.position.lerp(new THREE.Vector3(-30 * factor, 0, 0), lerpFactor);
 			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
 			this.rightWrapper.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
 			this.rightWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
+			this.farRightWrapper.position.lerp(new THREE.Vector3(30 * factor, 0, 0), lerpFactor);
 
 			this.rotationToZero(lerpFactor);
 			if (this.rightWrapper.position.x <= 0.1) {
@@ -338,7 +370,8 @@ export class Experience {
 			this.leftWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
 			this.mapWrapper.position.lerp(new THREE.Vector3(30 * factor, 0, 0), lerpFactor);
 			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
-			this.rightWrapper.position.lerp(new THREE.Vector3(60 * factor, 0, 0), lerpFactor);
+			this.rightWrapper.position.lerp(new THREE.Vector3(120 * factor, 0, 0), lerpFactor);
+			this.farLeftWrapper.position.lerp(new THREE.Vector3(-30 * factor, 0, 0), lerpFactor);
 
 			this.rotationToZero(lerpFactor);
 			if (this.leftWrapper.position.x >= -0.1) {

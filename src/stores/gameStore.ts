@@ -24,7 +24,9 @@ export const useGameStore = defineStore('game', {
 		selectedMapId: 'level_01',
 		avaiableMaps: [
 			{ id: 'level_01', name: 'Level 01', author: 'Official', fileUrl: '/maps/level_01.json' },
-			{ id: 'level_02', name: 'Level 02', author: 'Official', fileUrl: '/maps/level_02.json' }
+			{ id: 'level_02', name: 'Level 02', author: 'Official', fileUrl: '/maps/level_02.json' },
+			{ id: 'level_03', name: 'Level 03', author: 'Official', fileUrl: '/maps/level_03.json' },
+			{ id: 'level_04', name: 'Level 04', author: 'Official', fileUrl: '/maps/level_04.json' }
 		] as MapManifest[],
 		
 		loadedMapData: {} as Record<string, any>,
@@ -46,8 +48,8 @@ export const useGameStore = defineStore('game', {
 
 			const currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
 			if (currentIndex === 0) return state.selectedMapId;
+			
 			const prevIndex = currentIndex - 1;
-
 			return state.avaiableMaps[prevIndex].id;
 		},
 
@@ -57,9 +59,31 @@ export const useGameStore = defineStore('game', {
 
 			const currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
 			if (currentIndex === state.avaiableMaps.length - 1) return state.selectedMapId;
+			
 			const nextIndex = currentIndex + 1;
-
 			return state.avaiableMaps[nextIndex].id;
+		},
+
+		prevprevMapId: (state) => {
+			const	total = state.avaiableMaps.length;
+			if (total <= 2) return state.selectedMapId;
+
+			const	currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
+			if (currentIndex < 2) return state.selectedMapId;
+			
+			const	prevprevIndex = currentIndex - 2;
+			return state.avaiableMaps[prevprevIndex].id;
+		},
+
+		nextnextMapId: (state) => {
+			const	total = state.avaiableMaps.length;
+			if (total <= 2) return state.selectedMapId;
+
+			const	currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
+			if (currentIndex >= state.avaiableMaps.length - 2) return state.selectedMapId;
+		
+			const	nextnextIndex = currentIndex + 2;
+			return state.avaiableMaps[nextnextIndex].id;
 		}
 	},
 
