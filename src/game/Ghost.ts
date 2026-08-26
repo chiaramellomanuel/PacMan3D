@@ -13,6 +13,7 @@ export class Ghost {
 	private normalSpeed = 8;
 	private eatenSpeed = 20;
 	public originalColor: number;
+	private exitTimer: number = 0;
 
 	private static loadPromise: Promise<THREE.Group> | null = null;
 
@@ -68,6 +69,12 @@ export class Ghost {
 		const centerZ = Math.round(posZ / map.tileSize) * map.tileSize;
 		const distToCenter = Math.sqrt(Math.pow(posX - centerX, 2) + Math.pow(posZ - centerZ, 2));
 
+		if (this.state === GHOST_STATE.IN_BOX && this.exitTimer > 0) {
+			this.exitTimer -= delta;
+			if (this.exitTimer <= 0)
+				this.startExit();
+		}
+
 		if (distToCenter < moveStep) {
 			this.mesh.position.set(centerX, this.mesh.position.y, centerZ);
 			const currentTile = map.getTileAt(centerX, centerZ);
@@ -76,9 +83,7 @@ export class Ghost {
 				if (currentTile === MAP_INDEX.GHOST_BOX || currentTile === MAP_INDEX.GHOST_SPAWN) {
 					this.state = GHOST_STATE.IN_BOX;
 					this.updateAppearance(this.originalColor);
-					setTimeout(() => {
-						this.startExit(this.exitTarget!);
-					}, 2000);
+					this.exitTimer = 2;
 				}
 				else
 					this.pickDirection(map, this.exitTarget);
@@ -110,8 +115,9 @@ export class Ghost {
 		this.mesh.rotation.y = this.currentDir.angle;
 	}
 
-	public startExit(doorPos: THREE.Vector3) {
-		this.exitTarget = doorPos;
+	public startExit(doorPos?: THREE.Vector3) {
+		if (doorPos)
+			this.exitTarget = doorPos;
 		this.state = GHOST_STATE.EXITING;
 	}
 
