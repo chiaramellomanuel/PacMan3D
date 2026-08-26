@@ -42,6 +42,11 @@ export const useGameStore = defineStore('game', {
 	}),
 
 	getters: {
+		mapName: (state) => {
+			const	currentIndex = state.avaiableMaps.findIndex(m => m.id === state.selectedMapId);
+			return state.avaiableMaps[currentIndex].name;
+		},
+
 		prevMapId: (state) => {
 			const total = state.avaiableMaps.length;
 			if (total <= 1) return state.selectedMapId;
