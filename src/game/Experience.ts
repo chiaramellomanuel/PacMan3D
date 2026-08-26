@@ -26,6 +26,7 @@ export class Experience {
 	private gameStore = useGameStore();
 	private powerUpTimer: number = 0;
 	private flashTimer: number = 0;
+	private	respawnTimer: number = 0;
 
 	public	mapWrapper: THREE.Group;
 	public	mapContainer: THREE.Group;
@@ -210,7 +211,7 @@ export class Experience {
 	}
 
 	private handlePlayerDeath() {
-		this.gameStore.appState = "PAUSED";
+		this.gameStore.appState = "RESPAWN";
 		this.gameStore.loseLife();
 
 		if (this.gameStore.isGameOver) {
@@ -218,12 +219,8 @@ export class Experience {
 			this.gameStore.resetGame();
 			window.location.reload();
 		}
-		else {
-			setTimeout(() => {
-				this.resetPositions();
-				this.gameStore.appState = "PLAYING";
-			}, 1500);
-		}
+		else 
+			this.respawnTimer = 3;
 	}
 
 	private resetPositions() {
@@ -413,6 +410,15 @@ export class Experience {
 
 			if (this.gameStore.appState === "TRANSITIONING")
 				this.transitionToGame(delta);
+
+			if (this.gameStore.appState === "RESPAWN") {
+				this.respawnTimer -= delta;
+
+				if (this.respawnTimer <= 0) {
+					this.resetPositions();
+					this.gameStore.appState = "PLAYING";
+				}
+			}
 
 			if (!this.map || this.gameStore.appState !== "PLAYING") {
 				this.renderer.render(this.scene, this.camera);
