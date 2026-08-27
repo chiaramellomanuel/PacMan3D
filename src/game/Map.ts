@@ -225,9 +225,7 @@ export class Map {
 		this.gameStore.pelletEaten(points);
 
 		if (this.gameStore.isLevelClear) {
-			alert("YOU WIN!");
-			this.gameStore.resetGame();
-			window.location.reload();
+			this.gameStore.appState = "GAME_OVER";
 		}
 	}
 

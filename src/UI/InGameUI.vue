@@ -2,6 +2,15 @@
 	import { useGameStore } from '../stores/gameStore';
 
 	const	gameStore = useGameStore();
+
+	const	handlePauseClick = () => {
+		if (gameStore.appState === 'PAUSED')
+			gameStore.appState = gameStore.prevState;
+		else {
+			gameStore.prevState = gameStore.appState;
+			gameStore.appState = 'PAUSED';
+		}
+	}
 </script>
 
 <template>
@@ -21,7 +30,7 @@
 				{{ String(gameStore.score).padStart(5, '0') }}
 			</div>
 			<button
-				@click="gameStore.appState = 'PAUSED'"
+				@click="handlePauseClick()"
 				class="flex relative z-10 w-12 h-12 items-center justify-center border border-yellow-300 rounded-xs hover:scale-110 hover:cursor-pointer active:scale-90 transition-transform duration-100 pointer-events-auto"
 			>
 				<i-pixelarticons-pause class="w-10 h-10 text-yellow-300"/>

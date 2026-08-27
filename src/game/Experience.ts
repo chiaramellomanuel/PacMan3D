@@ -137,11 +137,11 @@ export class Experience {
 		if (this.inky) this.inky.destroy();
 		if (this.clyde) this.clyde.destroy();
 
-		this.leftContainer.add(...tempLeft.children);
-		this.mapContainer.add(...tempCenter.children);
-		this.rightContainer.add(...tempRight.children);
-		this.farLeftContainer.add(...tempFarLeft.children);
-		this.farRightContainer.add(...tempFarRight.children);
+		if (tempLeft.children.length > 0) this.leftContainer.add(...tempLeft.children);
+		if (tempCenter.children.length > 0) this.mapContainer.add(...tempCenter.children);
+		if (tempRight.children.length > 0) this.rightContainer.add(...tempRight.children);
+		if (tempFarLeft.children.length > 0) this.farLeftContainer.add(...tempFarLeft.children);
+		if (tempFarRight.children.length > 0) this.farRightContainer.add(...tempFarRight.children);
 
 		this.map = currentMap;
 
@@ -218,7 +218,7 @@ export class Experience {
 	}
 
 	private checkCollisions() {
-		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING" || this.gameStore.isGameOver) return;
+		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING") return;
 
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		const pacmanPos = this.pacman.mesh.position;
@@ -243,16 +243,11 @@ export class Experience {
 	}
 
 	private handlePlayerDeath() {
-		this.gameStore.appState = "RESPAWN";
 		this.gameStore.loseLife();
-
-		if (this.gameStore.isGameOver) {
-			alert("GAME OVER!");
-			this.gameStore.resetGame();
-			window.location.reload();
-		}
-		else 
+		if (this.gameStore.appState !== "GAME_OVER") {
+			this.gameStore.appState = "RESPAWN";
 			this.respawnTimer = GAME_CONFIG.PACMAN_RESPAWN_DELAY_SEC;
+		}
 	}
 
 	private resetPositions() {
@@ -282,7 +277,7 @@ export class Experience {
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		const pacmanPos = this.pacman?.mesh?.position;
 
-		if (this.ghostTimer > 5 && this.ghostsExited < ghosts.length) {
+		if (this.ghostTimer > GAME_CONFIG.GHOST_EXIT_TIMER && this.ghostsExited < ghosts.length) {
 			const currentGhost = ghosts[this.ghostsExited];
 			if (currentGhost) {
 				currentGhost.startExit(this.doorPosition);

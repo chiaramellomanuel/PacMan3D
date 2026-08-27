@@ -20,6 +20,7 @@ export interface MapManifest {
 export const useGameStore = defineStore('game', {
 	state: () => ({
 		appState: 'MENU' as appState,
+		prevState: 'MENU' as appState,
 
 		selectedMapId: 'level_01',
 		avaiableMaps: [
@@ -34,10 +35,8 @@ export const useGameStore = defineStore('game', {
 		score: 0,
 		highScore: 0,
 		ghostEatenMultiplier: 0,
-		lives: 3,
+		lives: 1,
 		pelletsRemaining: 0,
-		isGameStarted: false,
-		isGameOver: false,
 		isLevelClear: false
 	}),
 
@@ -91,23 +90,22 @@ export const useGameStore = defineStore('game', {
 			return state.avaiableMaps[nextnextIndex].id;
 		}
 	},
-
+	
 	actions: {
-
 		async fetchMapData(mapId: string) {
 			if (this.loadedMapData[mapId]) return this.loadedMapData[mapId];
-
+	
 			const mapConfig = this.avaiableMaps.find(m => m.id === mapId);
 			if (!mapConfig) {
 				console.error(`Map ${mapId} not found`);
 				return null;
 			}
-
+	
 			try {
 				const response = await fetch(mapConfig.fileUrl);
 				if (!response.ok) throw new Error('Network response was not ok');
 				const data = await response.json();
-
+	
 				this.loadedMapData[mapId] = data;
 				return data;
 			} catch (error) {
@@ -150,15 +148,14 @@ export const useGameStore = defineStore('game', {
 					this.score = 0
 			}
 			if (this.lives === 0)
-				this.isGameOver = true
+				this.appState = "GAME_OVER"
 		},
 
 		resetGame() {
 			this.score = 0;
 			this.lives = 3;
-			this.isGameOver = false;
+			this.appState = "PLAYING";
 			this.isLevelClear = false;
-			this.isGameStarted = true;
 		}
 	}
 })

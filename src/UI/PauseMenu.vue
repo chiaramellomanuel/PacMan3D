@@ -11,7 +11,7 @@
 
 	const	handleMenuClick = (action: string) => {
 		if (action === "resume")
-			gameStore.appState = "PLAYING"
+			gameStore.appState = gameStore.prevState;
 		else if (action === "restart") //temporary solution
 			window.location.reload();
 	};
@@ -19,7 +19,7 @@
 
 <template>
 	<div class="absolute flex items-center justify-center w-full h-full bg-black/60">
-		<div class="flex flex-col justify-center items-center space-y-40 w-full sm:w-120 md:w-130 lg:w-150 h-170 bg-blue-900 border-2 border-yellow-300 rounded-sm text-yellow-300 text-6xl font-mono">
+		<div class="flex flex-col justify-center items-center space-y-40 w-full sm:w-120 md:w-130 lg:w-150 h-170 bg-blue-900 border-2 border-yellow-300 rounded-sm text-yellow-300">
 			<button
 				v-for="btn in menuButtons"
 				:key="btn.label"
