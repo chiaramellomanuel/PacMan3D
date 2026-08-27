@@ -5,7 +5,7 @@ import { Map } from './Map'
 import { Ghost } from './Ghost'
 import { GHOST_PERSONALITY, GHOST_STATE, DIRECTIONS } from './Constants'
 import { useGameStore } from '../stores/gameStore'
-import { GAME_CONFIG } from './Config'
+import { GAME_CONFIG, ENGINE_CONFIG, MAP_PREVIEW_CONFIG } from './Config'
 
 export class Experience {
 	private renderer: WebGPURenderer;
@@ -44,8 +44,8 @@ export class Experience {
 		this.scene = new THREE.Scene();
 		this.scene.background = new THREE.Color(0x5F5CFF);
 
-		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera.position.set(0, 30, 20);
+		this.camera = new THREE.PerspectiveCamera(ENGINE_CONFIG.CAMERA_FOV, window.innerWidth / window.innerHeight, ENGINE_CONFIG.CAMERA_NEAR, ENGINE_CONFIG.CAMERA_FAR);
+		this.camera.position.copy(ENGINE_CONFIG.CAMERA_POS);
 		this.camera.lookAt(0, 0, 0);
 
 		this.renderer = new WebGPURenderer({ antialias: true });
@@ -86,11 +86,11 @@ export class Experience {
 	}
 
 	private setupLights() {
-		const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+		const ambientLight = new THREE.AmbientLight(ENGINE_CONFIG.AMBIENT_LIGHT_COLOR, ENGINE_CONFIG.AMBIENT_LIGHT_INTENSITY);
 		this.scene.add(ambientLight);
 
-		const directLight = new THREE.DirectionalLight(0xffffff, 2.0);
-		directLight.position.set(0, 10, 7);
+		const directLight = new THREE.DirectionalLight(ENGINE_CONFIG.DIRECT_LIGHT_COLOR, ENGINE_CONFIG.DIRECT_LIGHT_INTENSITY);
+		directLight.position.copy(ENGINE_CONFIG.DIRECT_LIGHT_POS);
 		this.scene.add(directLight);
 	}
 
@@ -145,25 +145,25 @@ export class Experience {
 
 		this.map = currentMap;
 
-		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, 0, 0.6);
+		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, MAP_PREVIEW_CONFIG.MAP_POS.center, MAP_PREVIEW_CONFIG.SELECTED_SCALE);
 		
 		if (prevId !== currentId)
-			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, -30, 0.3);
+			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, MAP_PREVIEW_CONFIG.MAP_POS.left, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.leftWrapper.visible = false;
 
 		if (nextId !== currentId)
-			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, 30, 0.3);
+			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, MAP_PREVIEW_CONFIG.MAP_POS.right, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.rightWrapper.visible = false;
 
 		if (prevprevId !== currentId)
-			this.setupPreviewVisual(prevprevMap, this.farLeftContainer, this.farLeftWrapper, -120, 0.3);
+			this.setupPreviewVisual(prevprevMap, this.farLeftContainer, this.farLeftWrapper, MAP_PREVIEW_CONFIG.MAP_POS.farLeft, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.farLeftWrapper.visible = false;
 
 		if (nextnextId !== currentId)
-			this.setupPreviewVisual(nextnextMap, this.farRightContainer, this.farRightWrapper, 120, 0.3);
+			this.setupPreviewVisual(nextnextMap, this.farRightContainer, this.farRightWrapper, MAP_PREVIEW_CONFIG.MAP_POS.farRight, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.farRightWrapper.visible = false;
 
@@ -335,30 +335,30 @@ export class Experience {
 		if (this.gameStore.appState === "MAP_PREVIEW") {
 			const factor = this.getResponsiveFactor();
 
-			this.mapWrapper.scale.setScalar(0.6 * factor);
-			this.mapWrapper.position.set(0, 0, 0);
+			this.mapWrapper.scale.setScalar(MAP_PREVIEW_CONFIG.SELECTED_SCALE * factor);
+			this.mapWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS.center, 0, 0);
 
-			this.leftWrapper.scale.setScalar(0.3 * factor);
-			this.leftWrapper.position.set(-30 * factor, 0, 0);
+			this.leftWrapper.scale.setScalar(MAP_PREVIEW_CONFIG.SIDE_SCALE * factor);
+			this.leftWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS.left * factor, 0, 0);
 
-			this.rightWrapper.scale.setScalar(0.3 * factor);
-			this.rightWrapper.position.set(30 * factor, 0, 0);
+			this.rightWrapper.scale.setScalar(MAP_PREVIEW_CONFIG.SIDE_SCALE * factor);
+			this.rightWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS.right * factor, 0, 0);
 		}
 	}
 
 	private mapPreview(delta: number) {
-		const	lerpFactor = 14 * delta;
+		const	lerpFactor = MAP_PREVIEW_CONFIG.MAP_CAROUSEL_LERP * delta;
 		const	factor = this.getResponsiveFactor();
-		const	targetSideScale = 0.3 * factor;
-		const	targetCenterScale = 0.6 * factor;
+		const	targetSideScale = MAP_PREVIEW_CONFIG.SIDE_SCALE * factor;
+		const	targetCenterScale = MAP_PREVIEW_CONFIG.SELECTED_SCALE * factor;
 
 		if (this.gameStore.appState === "MAP_PREVIEW_NEXT") {
-			this.leftWrapper.position.lerp(new THREE.Vector3(-120  * factor, 0, 0), lerpFactor);
-			this.mapWrapper.position.lerp(new THREE.Vector3(-30 * factor, 0, 0), lerpFactor);
+			this.leftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.farLeft  * factor, 0, 0), lerpFactor);
+			this.mapWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.left * factor, 0, 0), lerpFactor);
 			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
-			this.rightWrapper.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
+			this.rightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.center, 0, 0), lerpFactor);
 			this.rightWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
-			this.farRightWrapper.position.lerp(new THREE.Vector3(30 * factor, 0, 0), lerpFactor);
+			this.farRightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.right * factor, 0, 0), lerpFactor);
 
 			this.rotationToZero(lerpFactor);
 			if (this.rightWrapper.position.x <= 0.1) {
@@ -367,12 +367,12 @@ export class Experience {
 			}
 		}
 		else if (this.gameStore.appState === "MAP_PREVIEW_PREV") {
-			this.leftWrapper.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
+			this.leftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.center, 0, 0), lerpFactor);
 			this.leftWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
-			this.mapWrapper.position.lerp(new THREE.Vector3(30 * factor, 0, 0), lerpFactor);
+			this.mapWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.right * factor, 0, 0), lerpFactor);
 			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
-			this.rightWrapper.position.lerp(new THREE.Vector3(120 * factor, 0, 0), lerpFactor);
-			this.farLeftWrapper.position.lerp(new THREE.Vector3(-30 * factor, 0, 0), lerpFactor);
+			this.rightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.farRight * factor, 0, 0), lerpFactor);
+			this.farLeftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.left * factor, 0, 0), lerpFactor);
 
 			this.rotationToZero(lerpFactor);
 			if (this.leftWrapper.position.x >= -0.1) {
@@ -381,9 +381,9 @@ export class Experience {
 			}
 		}
 
-		this.mapWrapper.rotation.y -= 0.3 * delta;
+		this.mapWrapper.rotation.y -= MAP_PREVIEW_CONFIG.MAP_ROTATION * delta;
 
-		this.camera.position.set(0, 30, 20);
+		this.camera.position.copy(ENGINE_CONFIG.CAMERA_POS);
 		this.lookTarget.set(0, 0, 0);
 		this.camera.lookAt(this.lookTarget);
 	}
@@ -392,7 +392,7 @@ export class Experience {
 		this.leftWrapper.visible = false;
 		this.rightWrapper.visible = false;
 
-		const lerpFactor = 5 * delta;
+		const lerpFactor = MAP_PREVIEW_CONFIG.GAME_TRANSITION_LERP * delta;
 
 		this.rotationToZero(lerpFactor);
 
@@ -402,8 +402,8 @@ export class Experience {
 		if (this.pacmanSpawn) {
 			const targetCamPos = new THREE.Vector3(
 				this.pacmanSpawn.x,
-				30,
-				this.pacmanSpawn.z + 20
+				ENGINE_CONFIG.CAMERA_POS.y,
+				this.pacmanSpawn.z + ENGINE_CONFIG.CAMERA_POS.z
 			);
 
 			this.camera.position.lerp(targetCamPos, lerpFactor);
@@ -467,13 +467,11 @@ export class Experience {
 
 				if (this.pacman.mesh) {
 					const pPos = this.pacman.mesh.position;
-					const cameraHeight = 30;
-					const offsetZ = 20;
-					const lerpFactor = 5 * delta;
+					const lerpFactor = ENGINE_CONFIG.CAMERA_LERP * delta;
 
 					this.camera.position.x += (pPos.x - this.camera.position.x) * lerpFactor;
-					this.camera.position.z += ((pPos.z + offsetZ) - this.camera.position.z) * lerpFactor;
-					this.camera.position.y = cameraHeight;
+					this.camera.position.z += ((pPos.z + ENGINE_CONFIG.CAMERA_POS.z) - this.camera.position.z) * lerpFactor;
+					this.camera.position.y = ENGINE_CONFIG.CAMERA_POS.y;
 
 					this.lookTarget.x += (pPos.x - this.lookTarget.x) * lerpFactor;
 					this.lookTarget.z += (pPos.z - this.lookTarget.z) * lerpFactor;

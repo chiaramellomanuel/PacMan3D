@@ -82,7 +82,7 @@ export class Ghost {
 				if (currentTile === MAP_INDEX.GHOST_BOX || currentTile === MAP_INDEX.GHOST_SPAWN) {
 					this.state = GHOST_STATE.IN_BOX;
 					this.updateAppearance(this.originalColor);
-					this.exitTimer = GAME_CONFIG.GHOST_EXIT_DELAY;
+					this.exitTimer = Math.max(GAME_CONFIG.GHOST_EXIT_DELAY, 0.1);
 				}
 				else
 					this.pickDirection(map, this.exitTarget);

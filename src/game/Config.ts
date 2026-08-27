@@ -4,7 +4,7 @@ export const GAME_CONFIG = {
 
 	GHOST_NORMAL_SPEED: 8,
 	GHOST_EATEN_SPEED: 20,
-	GHOST_EXIT_DELAY: 2, //never zero
+	GHOST_EXIT_DELAY: 2,
 
 	POWER_PELLET_DURATION: 10,
 	GHOST_FLASH_DURATION: 3,
@@ -13,4 +13,29 @@ export const GAME_CONFIG = {
 
 export const HUD_CONFIG = {
 	MAIN_MENU_MOVE_CD: 100,
+	MAIN_MENU_Y_DIST: 100
+} as const;
+
+export const ENGINE_CONFIG = {
+	CAMERA_FOV: 75,
+	CAMERA_NEAR: 0.1,
+	CAMERA_FAR: 1000,
+	CAMERA_POS: { x: 0, y: 30, z: 20 },
+	CAMERA_LERP: 5,
+
+	AMBIENT_LIGHT_COLOR: 0xffffff,
+	AMBIENT_LIGHT_INTENSITY: 1.5,
+	DIRECT_LIGHT_COLOR: 0xffffff,
+	DIRECT_LIGHT_INTENSITY: 2,
+	DIRECT_LIGHT_POS: { x: 0, y: 10, z: 7 }
+} as const;
+
+export const MAP_PREVIEW_CONFIG = {
+	SELECTED_SCALE: 0.6,
+	SIDE_SCALE: 0.3,
+	MAP_POS: {center: 0, left: -30, right: 30, farLeft: -120, farRight: 120},
+	MAP_ROTATION: 0.3,
+
+	MAP_CAROUSEL_LERP: 14,
+	GAME_TRANSITION_LERP: 5
 } as const;

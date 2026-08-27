@@ -55,7 +55,7 @@
 
 	const	getItemStyle = (index: number) => {
 		const	distance = index - selectedIndex.value;
-		const	translateY = `calc(-50% + ${distance * 80}px)`;
+		const	translateY = `calc(-50% + ${distance * HUD_CONFIG.MAIN_MENU_Y_DIST}px)`;
 		const	scale = distance === 0 ? 1 : 0.5;
 		const	opacity = distance === 0 ? 1 : (Math.abs(distance) === 1 ? 0.4 : 0);
 
