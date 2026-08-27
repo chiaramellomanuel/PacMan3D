@@ -5,6 +5,7 @@ import { Map } from './Map'
 import { Ghost } from './Ghost'
 import { GHOST_PERSONALITY, GHOST_STATE, DIRECTIONS } from './Constants'
 import { useGameStore } from '../stores/gameStore'
+import { GAME_CONFIG } from './Config'
 
 export class Experience {
 	private renderer: WebGPURenderer;
@@ -251,7 +252,7 @@ export class Experience {
 			window.location.reload();
 		}
 		else 
-			this.respawnTimer = 3;
+			this.respawnTimer = GAME_CONFIG.PACMAN_RESPAWN_DELAY_SEC;
 	}
 
 	private resetPositions() {
@@ -293,11 +294,11 @@ export class Experience {
 		if (this.powerUpTimer > 0) {
 			this.powerUpTimer -= delta;
 
-			if (this.powerUpTimer <= 3) {
+			if (this.powerUpTimer <= GAME_CONFIG.GHOST_FLASH_DURATION) {
 				this.flashTimer += delta;
-				if (this.flashTimer >= 0.2 && this.flashTimer < 0.4)
+				if (this.flashTimer >= GAME_CONFIG.GHOST_FLASH_INTERVAL && this.flashTimer < (GAME_CONFIG.GHOST_FLASH_INTERVAL * 2))
 					ghosts.forEach(g => g?.setFlashing(0xffffff));
-				else if (this.flashTimer >= 0.4) {
+				else if (this.flashTimer >= (GAME_CONFIG.GHOST_FLASH_INTERVAL * 2)) {
 					this.flashTimer = 0;
 					ghosts.forEach(g => g?.setFlashing(0x0000ff));
 				}
@@ -317,7 +318,7 @@ export class Experience {
 		this.gameStore.resetGhostMultiplier();
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		
-		this.powerUpTimer = 10;
+		this.powerUpTimer = GAME_CONFIG.POWER_PELLET_DURATION;
 
 		ghosts.forEach(ghost => {
 			if (ghost?.state !== GHOST_STATE.EATEN){

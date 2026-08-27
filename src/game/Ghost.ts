@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DIRECTIONS, GHOST_STATE, GHOST_PERSONALITY, MAP_INDEX,  type GhostState, type GhostPersonality } from './Constants';
 import { Map } from './Map';
+import { GAME_CONFIG } from './Config';
 
 export class Ghost {
 	public mesh: THREE.Group | null = null;
@@ -10,8 +11,6 @@ export class Ghost {
 	private scene: THREE.Group;
 	private exitTarget: THREE.Vector3 | null = null;
 	private currentDir = DIRECTIONS.UP;
-	private normalSpeed = 8;
-	private eatenSpeed = 20;
 	public originalColor: number;
 	private exitTimer: number = 0;
 
@@ -61,7 +60,7 @@ export class Ghost {
 	public update(delta: number, map: Map, target?: THREE.Vector3) {
 		if (!this.mesh) return;
 
-		const currentSpeed = (this.state === GHOST_STATE.EATEN) ? this.eatenSpeed : this.normalSpeed;
+		const currentSpeed = (this.state === GHOST_STATE.EATEN) ? GAME_CONFIG.GHOST_EATEN_SPEED : GAME_CONFIG.GHOST_NORMAL_SPEED;
 		const moveStep = currentSpeed * Math.min(delta, 0.1);
 		const posX = this.mesh.position.x;
 		const posZ = this.mesh.position.z;
@@ -83,7 +82,7 @@ export class Ghost {
 				if (currentTile === MAP_INDEX.GHOST_BOX || currentTile === MAP_INDEX.GHOST_SPAWN) {
 					this.state = GHOST_STATE.IN_BOX;
 					this.updateAppearance(this.originalColor);
-					this.exitTimer = 2;
+					this.exitTimer = GAME_CONFIG.GHOST_EXIT_DELAY;
 				}
 				else
 					this.pickDirection(map, this.exitTarget);

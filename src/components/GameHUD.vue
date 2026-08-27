@@ -13,6 +13,7 @@
 	<MapSelection v-if="gameStore.appState === 'MAP_PREVIEW' ||
 						gameStore.appState === 'MAP_PREVIEW_NEXT' ||
 						gameStore.appState === 'MAP_PREVIEW_PREV'" />
-	<InGameUI v-if="gameStore.appState === 'PLAYING'"/>
+	<InGameUI v-if="gameStore.appState === 'PLAYING' ||
+					gameStore.appState === 'PAUSED'"/>
 	<PauseMenu v-if="gameStore.appState === 'PAUSED'"/>
 </template>

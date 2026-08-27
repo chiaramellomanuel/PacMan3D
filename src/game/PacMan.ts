@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { Map } from './Map'
 import { DIRECTIONS } from './Constants'
 import { useGameStore } from '../stores/gameStore';
+import { GAME_CONFIG } from './Config';
 
 
 export class PacMan {
@@ -10,7 +11,6 @@ export class PacMan {
 	private scene: THREE.Group;
 	public currentDir = DIRECTIONS.NONE;
 	private nextDir = DIRECTIONS.NONE;
-	private speed = 10;
 	private gameStore = useGameStore();
 
 	private static loadPromise: Promise<THREE.Group> | null = null;
@@ -69,7 +69,7 @@ export class PacMan {
 	public update(delta: number, map: Map) {
 		if (!this.mesh) return;
 
-		const moveStep = this.speed * Math.min(delta, 0.1);
+		const moveStep = GAME_CONFIG.PACMAN_BASE_SPEED * Math.min(delta, 0.1);
 		const posX = this.mesh.position.x;
 		const posZ = this.mesh.position.z;
 

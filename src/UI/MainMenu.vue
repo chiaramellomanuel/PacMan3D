@@ -1,11 +1,11 @@
 <script setup lang="ts">
 	import { ref, onMounted, onUnmounted } from 'vue';
 	import { useGameStore } from '../stores/gameStore';
+	import { HUD_CONFIG } from '../game/Config';
 
 	const	gameStore = useGameStore();
 	const	selectedIndex = ref(0);
 	let		lastMoveTime = 0;
-	const	moveCooldown = 100;
 
 	const	menuButtons = [
 		{ label: '/UI/MainMenu/Play_text.png', action: 'play' },
@@ -24,7 +24,7 @@
 	const	handleKeyDown = (e: KeyboardEvent) => {
 		const	now = Date.now();
 
-		if ((now - lastMoveTime) < moveCooldown) return;
+		if ((now - lastMoveTime) < HUD_CONFIG.MAIN_MENU_MOVE_CD) return;
 
 		if (e.key === 'ArrowDown' && selectedIndex.value < (menuButtons.length - 1)) {
 			selectedIndex.value = selectedIndex.value + 1;
@@ -41,7 +41,7 @@
 	const	handleWheel = (e: WheelEvent) => {
 		const	now = Date.now();
 
-		if (now - lastMoveTime < moveCooldown) return;
+		if (now - lastMoveTime < HUD_CONFIG.MAIN_MENU_MOVE_CD) return;
 
 		if (e.deltaY > 0 && selectedIndex.value < (menuButtons.length - 1)) {
 			selectedIndex.value = selectedIndex.value + 1;
