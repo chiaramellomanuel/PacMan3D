@@ -2,16 +2,8 @@
 	"tileSize": 2,
 	"offset": { "x": 0, "z": 0},
 	"teleports": [
-		{
-			"pairId": 1,
-			"point_A": {"row": 12, "col": 0},
-			"point_B": {"row": 12, "col": 22}
-		},
-		{
-			"pairId": 2,
-			"point_A": {"row": 13, "col": 0},
-			"point_B": {"row": 13, "col": 22}
-		}
+		{ "pairId": 1, "point_A": {"row": 12, "col": 0}, "point_B": {"row": 12, "col": 22} },
+		{ "pairId": 2, "point_A": {"row": 13, "col": 0}, "point_B": {"row": 13, "col": 22} }
 	],
 	"grid": [
 		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],

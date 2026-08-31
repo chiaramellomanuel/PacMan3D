@@ -14,6 +14,7 @@ export class Map {
 	private	powerMesh:		THREE.InstancedMesh | null = null;
 	private	pelletIndices:	(number | null)[][] = [];
 	private	powerIndices:	(number | null)[][] = [];
+	private	totalPellets: 	number = 0;
 	private	gameStore =		useGameStore();
 	private	teleportLinks =	new globalThis.Map<string, THREE.Vector3>();
 	private dummy =			new THREE.Object3D();
@@ -164,8 +165,7 @@ export class Map {
 			}
 		}
 
-		this.gameStore.pelletsRemaining = pelletIndex + powerIndex;
-
+		this.totalPellets = pelletIndex + powerIndex;
 		this.pelletMesh = new THREE.InstancedMesh(pelletGeometry, material, pelletPositions.length);
 		this.powerMesh = new THREE.InstancedMesh(powerGeometry, material, powerPositions.length);
 
@@ -258,7 +258,7 @@ export class Map {
 		return new THREE.Vector3(1, 0, 1);
 	}
 
-	public getGhostSpawnPoints(): THREE.Vector3[] {
+	public getGhostSpawnPoints(): THREE.Vector3[] | null {
 		const points: { x: number, z: number }[] = [];
 
 		for (let row = 0; row < this.grid.length; row++) {
@@ -271,6 +271,9 @@ export class Map {
 				}
 			}
 		}
+
+		if (points.length === 0)
+			return null;
 
 		points.sort((a, b) => {
 			if (a.z !== b.z) 
@@ -300,5 +303,9 @@ export class Map {
 		const col = Math.round((x - this.offset.x) / this.tileSize);
 		const row = Math.round((z - this.offset.z) / this.tileSize);
 		return (this.grid[row] && this.grid[row][col] !== undefined) ? this.grid[row][col] : 1;
+	}
+
+	public getTotalPellets(): number {
+		return this.totalPellets;
 	}
 }

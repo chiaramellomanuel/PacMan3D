@@ -173,20 +173,22 @@ export class Experience {
 		this.pacmanSpawn = this.map.getPacmanSpawnPoint();
 		this.ghostsSpawn = this.map.getGhostSpawnPoints();
 
-		const referencePoint = this.ghostsSpawn[2];
-		const dx = this.doorPosition.x - referencePoint.x;
-		const dz = this.doorPosition.z - referencePoint.z;
-
-		let spawnDir = DIRECTIONS.UP;
-		if (Math.abs(dx) > Math.abs(dz))
-			spawnDir = dx > 0 ? DIRECTIONS.RIGHT : DIRECTIONS.LEFT;
-		else
-			spawnDir = dz > 0 ? DIRECTIONS.DOWN : DIRECTIONS.UP;
-
-		this.blinky	= new Ghost(this.mapContainer as any, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER, spawnDir);
-		this.pinky	= new Ghost(this.mapContainer as any, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM, spawnDir);
-		this.inky	= new Ghost(this.mapContainer as any, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM, spawnDir);
-		this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM, spawnDir);
+		if (this.ghostsSpawn) {
+			const referencePoint = this.ghostsSpawn[2];
+			const dx = this.doorPosition.x - referencePoint.x;
+			const dz = this.doorPosition.z - referencePoint.z;
+	
+			let spawnDir = DIRECTIONS.UP;
+			if (Math.abs(dx) > Math.abs(dz))
+				spawnDir = dx > 0 ? DIRECTIONS.RIGHT : DIRECTIONS.LEFT;
+			else
+				spawnDir = dz > 0 ? DIRECTIONS.DOWN : DIRECTIONS.UP;
+	
+			this.blinky	= new Ghost(this.mapContainer as any, 0xff0000, this.ghostsSpawn[0], GHOST_PERSONALITY.CHASER, spawnDir);
+			this.pinky	= new Ghost(this.mapContainer as any, 0xffb8ff, this.ghostsSpawn[1], GHOST_PERSONALITY.RANDOM, spawnDir);
+			this.inky	= new Ghost(this.mapContainer as any, 0x00ffff, this.ghostsSpawn[2], GHOST_PERSONALITY.RANDOM, spawnDir);
+			this.clyde	= new Ghost(this.mapContainer as any, 0xffb852, this.ghostsSpawn[3], GHOST_PERSONALITY.RANDOM, spawnDir);
+		}
 	
 		this.pacman = new PacMan(this.mapContainer as any, this.pacmanSpawn);
 	}
@@ -411,6 +413,8 @@ export class Experience {
 			this.mapWrapper.scale.set(1, 1, 1);
 			this.mapContainer.position.set(0, 0, 0);
 
+			if (this.map)
+				this.gameStore.setTotalPellets(this.map.getTotalPellets());
 			this.gameStore.appState = "PLAYING";
 		}
 	}
