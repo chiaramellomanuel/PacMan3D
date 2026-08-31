@@ -11,8 +11,6 @@
 
 * reset con ricaricamento pagina da modificare effettuare il reset del gioco senza ricaricare la pagina mantenendo la mentalita' SPA
 
-* Testando una partita completa mi e' successo che il gioco considerasse la partita vinta quando ancora mancavano dei pellets
-
 * A volte pacman viene colpito anche quando il fantasma e' distante da lui
 
 * Con la GhostBox in verticale la porta non viene disegnata in modo corretto e bisogna controllare anche la direzione verso la quale sono girati i fantasmi

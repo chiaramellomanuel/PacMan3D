@@ -29,7 +29,7 @@ export const useGameStore = defineStore('game', {
 			{ id: 'level_03', name: 'Level 03', author: 'Official', fileUrl: '/maps/level_03.json' },
 			{ id: 'level_04', name: 'Level 04', author: 'Official', fileUrl: '/maps/level_04.json' },
 			{ id: 'test', name:'test_level', author: 'Official', fileUrl:'/maps/test_level.json' },
-			{ id: 'giga', name: 'Gigantinc', author: 'Official', fileUrl: '/maps/level_gigantic.json' }
+			{ id: 'giga', name: 'Gigantic', author: 'Official', fileUrl: '/maps/level_gigantic.json' }
 		] as MapManifest[],
 		
 		loadedMapData: {} as Record<string, any>,
