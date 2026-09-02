@@ -36,6 +36,12 @@ export class Experience {
 	private	farLeftPlanes!: THREE.Plane[];
 	private	farRightPlanes!: THREE.Plane[];
 
+	private	mapFrame!: THREE.Group;
+	private	leftFrame!: THREE.Group;
+	private	rightFrame!: THREE.Group;
+	private	farLeftFrame!: THREE.Group;
+	private	farRightFrame!:	THREE.Group;
+
 	public	mapWrapper: ClippingGroup;
 	public	mapContainer: THREE.Group;
 	public	leftWrapper: ClippingGroup;
@@ -98,6 +104,12 @@ export class Experience {
 		this.farLeftWrapper.clippingPlanes = this.farLeftPlanes;
 		this.farRightWrapper.clippingPlanes = this.farRightPlanes;
 
+		this.mapFrame = this.createVisualFrame();
+		this.leftFrame = this.createVisualFrame();
+		this.rightFrame = this.createVisualFrame();
+		this.farLeftFrame = this.createVisualFrame();
+		this.farRightFrame = this.createVisualFrame();
+
 		this.setupLights();
 		this.initEngine();
 
@@ -111,6 +123,53 @@ export class Experience {
 			new THREE.Plane(new THREE.Vector3(0, 0, -1), this.baseClipLimit),
 			new THREE.Plane(new THREE.Vector3(0, 0, 1), this.baseClipLimit)
 		];
+	}
+
+	private	createVisualFrame(): THREE.Group {
+		const	size = this.baseClipLimit * 2;
+		const	group = new THREE.Group();
+
+		const	edgeGeometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(size, 4, size));
+		const	edgeMaterial = new THREE.LineBasicMaterial({
+			color: 0x00ffff,
+			transparent: true,
+			opacity: 0.8
+		});
+		group.add(new THREE.LineSegments(edgeGeometry, edgeMaterial));
+
+		const	boxGeometry = new THREE.BoxGeometry(size, 4, size);
+
+		const	boxMaterialSide = new THREE.MeshBasicMaterial({
+			color: 0x025ced,
+			transparent: true,
+			side: THREE.DoubleSide,
+			depthWrite: false
+		});
+
+		const	boxMaterialFloor = new THREE.MeshBasicMaterial({
+			color: 0x000000,
+			transparent: true,
+			opacity: 0.15,
+			side: THREE.DoubleSide,
+			depthWrite: false
+		});
+
+		const	boxMaterialInv = new THREE.MeshBasicMaterial({
+			visible: false
+		});
+
+		const	boxMaterials = [
+			boxMaterialSide,
+			boxMaterialSide,
+			boxMaterialInv,
+			boxMaterialFloor,
+			boxMaterialSide,
+			boxMaterialSide
+		];
+		group.add(new THREE.Mesh(boxGeometry, boxMaterials));
+
+		this.scene.add(group);
+		return group;
 	}
 
 	private setupLights() {
@@ -458,14 +517,15 @@ export class Experience {
 	}
 
 	private	updateClippingBoxes() {
-		this.updateSingleBox(this.mapPlanes, this.mapWrapper);
-		this.updateSingleBox(this.leftPlanes, this.leftWrapper);
-		this.updateSingleBox(this.rightPlanes, this.rightWrapper);
-		this.updateSingleBox(this.farLeftPlanes, this.farLeftWrapper);
-		this.updateSingleBox(this.farRightPlanes, this.farRightWrapper);
+		this.updateSingleBox(this.mapPlanes, this.mapWrapper, this.mapFrame);
+		this.updateSingleBox(this.leftPlanes, this.leftWrapper, this.leftFrame);
+		this.updateSingleBox(this.rightPlanes, this.rightWrapper, this.rightFrame);
+		this.updateSingleBox(this.farLeftPlanes, this.farLeftWrapper, this.farLeftFrame);
+		this.updateSingleBox(this.farRightPlanes, this.farRightWrapper, this.farRightFrame);
 	}
 
-	private	updateSingleBox(planes: THREE.Plane[], wrapper: ClippingGroup) {
+	private	updateSingleBox(planes: THREE.Plane[], wrapper: ClippingGroup, frame: THREE.Group) {
+		frame.visible = wrapper.visible;
 		if (!wrapper.visible) return;
 
 		const	currentLimit = this.baseClipLimit * wrapper.scale.x;
@@ -475,7 +535,10 @@ export class Experience {
 		planes[0].constant = centerX + currentLimit;
 		planes[1].constant = currentLimit - centerX;
 		planes[2].constant = centerZ + currentLimit;
-		planes[3].constant = currentLimit - centerZ;	
+		planes[3].constant = currentLimit - centerZ;
+
+		frame.scale.setScalar(wrapper.scale.x);
+		frame.position.set(centerX, 1, centerZ);
 	}
 	
 	private startLoop() {
