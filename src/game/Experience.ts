@@ -469,12 +469,13 @@ export class Experience {
 		if (!wrapper.visible) return;
 
 		const	currentLimit = this.baseClipLimit * wrapper.scale.x;
-		const	posX = wrapper.position.x;
+		const	centerX = wrapper.position.x + this.lookTarget.x;
+		const	centerZ = wrapper.position.z + this.lookTarget.z;
 
-		planes[0].constant = posX + currentLimit;
-		planes[1].constant = currentLimit - posX;
-		planes[2].constant = currentLimit;
-		planes[3].constant = currentLimit;	
+		planes[0].constant = centerX + currentLimit;
+		planes[1].constant = currentLimit - centerX;
+		planes[2].constant = centerZ + currentLimit;
+		planes[3].constant = currentLimit - centerZ;	
 	}
 	
 	private startLoop() {
