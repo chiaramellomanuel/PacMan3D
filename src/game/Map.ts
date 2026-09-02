@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { MeshStandardNodeMaterial } from 'three/webgpu'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MAP_INDEX } from './Constants'
 import { useGameStore } from '../stores/gameStore'
@@ -79,7 +80,14 @@ export class Map {
 				if (!sourceMesh) return;
 
 				const geometry = sourceMesh.geometry;
-				const material = sourceMesh.material;
+				const material = sourceMesh.material as THREE.MeshStandardMaterial;
+				const nodeMaterial = new MeshStandardNodeMaterial({
+					color: material.color,
+					roughness: material.roughness,
+					metalness: material.metalness,
+					map: material.map,
+					normalMap: material.normalMap
+				});
 
 				const wallPositions: THREE.Vector3[] = [];
 				for (let row = 0; row < this.grid.length; row++) {
@@ -94,7 +102,7 @@ export class Map {
 					}
 				}
 
-				this.wallMesh = new THREE.InstancedMesh(geometry, material, wallPositions.length);
+				this.wallMesh = new THREE.InstancedMesh(geometry, nodeMaterial, wallPositions.length);
 				wallPositions.forEach((pos, i) => {
 					this.dummy.position.copy(pos);
 					this.dummy.updateMatrix();
@@ -128,7 +136,7 @@ export class Map {
 	private async generatePellets() {
 		const pelletGeometry = new THREE.SphereGeometry(0.2, 8, 8);
 		const powerGeometry = new THREE.SphereGeometry(0.8, 8, 8);
-		const material = new THREE.MeshStandardMaterial({
+		const material = new MeshStandardNodeMaterial({
 			color: 0xffcc00,
 			emissive: 0xffaa00,
 			emissiveIntensity: 0.5

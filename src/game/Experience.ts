@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { WebGPURenderer, Timer, } from 'three/webgpu'
+import { WebGPURenderer, Timer, ClippingGroup } from 'three/webgpu'
 import { PacMan } from './PacMan'
 import { Map } from './Map'
 import { Ghost } from './Ghost'
@@ -29,16 +29,23 @@ export class Experience {
 	private flashTimer: number = 0;
 	private	respawnTimer: number = 0;
 
-	public	mapWrapper: THREE.Group;
+	private	baseClipLimit = 40;
+	private	mapPlanes!: THREE.Plane[];
+	private	leftPlanes!: THREE.Plane[];
+	private	rightPlanes!: THREE.Plane[];
+	private	farLeftPlanes!: THREE.Plane[];
+	private	farRightPlanes!: THREE.Plane[];
+
+	public	mapWrapper: ClippingGroup;
 	public	mapContainer: THREE.Group;
-	public	leftWrapper: THREE.Group;
+	public	leftWrapper: ClippingGroup;
 	public	leftContainer: THREE.Group;
-	public	rightWrapper: THREE.Group;
+	public	rightWrapper: ClippingGroup;
 	public	rightContainer:	THREE.Group;
+	public	farLeftWrapper: ClippingGroup;
 	public	farLeftContainer: THREE.Group;
-	public	farLeftWrapper: THREE.Group;
+	public	farRightWrapper: ClippingGroup;
 	public	farRightContainer: THREE.Group;
-	public	farRightWrapper: THREE.Group;
 
 	constructor (container: HTMLElement) {
 		this.scene = new THREE.Scene();
@@ -54,35 +61,56 @@ export class Experience {
 
 		this.timer = new Timer();
 
-		this.mapWrapper = new THREE.Group();
+		this.mapWrapper = new ClippingGroup();
 		this.scene.add(this.mapWrapper);
 		this.mapContainer = new THREE.Group();
 		this.mapWrapper.add(this.mapContainer);
 
-		this.leftWrapper = new THREE.Group();
+		this.leftWrapper = new ClippingGroup();
 		this.scene.add(this.leftWrapper);
 		this.leftContainer = new THREE.Group();
 		this.leftWrapper.add(this.leftContainer);
 
-		this.rightWrapper = new THREE.Group();
+		this.rightWrapper = new ClippingGroup();
 		this.scene.add(this.rightWrapper);
 		this.rightContainer = new THREE.Group();
 		this.rightWrapper.add(this.rightContainer);
 
-		this.farLeftWrapper = new THREE.Group();
+		this.farLeftWrapper = new ClippingGroup();
 		this.scene.add(this.farLeftWrapper);
 		this.farLeftContainer = new THREE.Group();
 		this.farLeftWrapper.add(this.farLeftContainer);
 
-		this.farRightWrapper = new THREE.Group();
+		this.farRightWrapper = new ClippingGroup();
 		this.scene.add(this.farRightWrapper);
 		this.farRightContainer = new THREE.Group();
 		this.farRightWrapper.add(this.farRightContainer);
+
+		this.mapPlanes = this.createClippingBox();
+		this.leftPlanes = this.createClippingBox();
+		this.rightPlanes = this.createClippingBox();
+		this.farLeftPlanes = this.createClippingBox();
+		this.farRightPlanes = this.createClippingBox();
+
+		this.mapWrapper.clippingPlanes = this.mapPlanes;
+		this.leftWrapper.clippingPlanes = this.leftPlanes;
+		this.rightWrapper.clippingPlanes = this.rightPlanes;
+		this.farLeftWrapper.clippingPlanes = this.farLeftPlanes;
+		this.farRightWrapper.clippingPlanes = this.farRightPlanes;
 
 		this.setupLights();
 		this.initEngine();
 
 		window.addEventListener('resize', () => this.onWindowResize());
+	}
+
+	private	createClippingBox(): THREE.Plane[] {
+		return [
+			new THREE.Plane(new THREE.Vector3(-1, 0, 0), this.baseClipLimit),
+			new THREE.Plane(new THREE.Vector3(1, 0, 0), this.baseClipLimit),
+			new THREE.Plane(new THREE.Vector3(0, 0, -1), this.baseClipLimit),
+			new THREE.Plane(new THREE.Vector3(0, 0, 1), this.baseClipLimit)
+		];
 	}
 
 	private setupLights() {
@@ -428,6 +456,26 @@ export class Experience {
 
 		this.mapWrapper.rotation.y = THREE.MathUtils.lerp(this.mapWrapper.rotation.y, 0, lerpFactor);
 	}
+
+	private	updateClippingBoxes() {
+		this.updateSingleBox(this.mapPlanes, this.mapWrapper);
+		this.updateSingleBox(this.leftPlanes, this.leftWrapper);
+		this.updateSingleBox(this.rightPlanes, this.rightWrapper);
+		this.updateSingleBox(this.farLeftPlanes, this.farLeftWrapper);
+		this.updateSingleBox(this.farRightPlanes, this.farRightWrapper);
+	}
+
+	private	updateSingleBox(planes: THREE.Plane[], wrapper: ClippingGroup) {
+		if (!wrapper.visible) return;
+
+		const	currentLimit = this.baseClipLimit * wrapper.scale.x;
+		const	posX = wrapper.position.x;
+
+		planes[0].constant = posX + currentLimit;
+		planes[1].constant = currentLimit - posX;
+		planes[2].constant = currentLimit;
+		planes[3].constant = currentLimit;	
+	}
 	
 	private startLoop() {
 		const animate = () => {
@@ -452,6 +500,7 @@ export class Experience {
 					this.gameStore.appState = "PLAYING";
 				}
 			}
+			this.updateClippingBoxes();
 
 			if (!this.map || this.gameStore.appState !== "PLAYING") {
 				this.renderer.render(this.scene, this.camera);
