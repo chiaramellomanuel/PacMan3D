@@ -39,7 +39,9 @@ export const useGameStore = defineStore('game', {
 		ghostEatenMultiplier: 0,
 		lives: 1,
 		pelletsRemaining: 0,
-		isLevelClear: false
+		isLevelClear: false,
+
+		godmode: true
 	}),
 
 	getters: {

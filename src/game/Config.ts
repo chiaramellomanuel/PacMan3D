@@ -34,8 +34,13 @@ export const ENGINE_CONFIG = {
 export const MAP_PREVIEW_CONFIG = {
 	SELECTED_SCALE: 0.6,
 	SIDE_SCALE: 0.3,
-	MAP_POS: {center: 0, left: -30, right: 30, farLeft: -120, farRight: 120},
+	MAP_POS_X: {center: 0, left: -30, right: 30, farLeft: -120, farRight: 120},
+	MAP_POS_Y: {center: 0, sides: -3},
+	MAP_POS_Z: -10,
 	MAP_ROTATION: 0.3,
+
+	MAP_CLIPPING_FRAME_SIZE: 40,
+	MAP_FRAME_HEIGHT: 6,
 
 	MAP_CAROUSEL_LERP: 14,
 	GAME_TRANSITION_LERP: 5

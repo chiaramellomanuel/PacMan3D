@@ -29,7 +29,6 @@ export class Experience {
 	private flashTimer: number = 0;
 	private	respawnTimer: number = 0;
 
-	private	baseClipLimit = 40;
 	private	mapPlanes!: THREE.Plane[];
 	private	leftPlanes!: THREE.Plane[];
 	private	rightPlanes!: THREE.Plane[];
@@ -118,18 +117,19 @@ export class Experience {
 
 	private	createClippingBox(): THREE.Plane[] {
 		return [
-			new THREE.Plane(new THREE.Vector3(-1, 0, 0), this.baseClipLimit),
-			new THREE.Plane(new THREE.Vector3(1, 0, 0), this.baseClipLimit),
-			new THREE.Plane(new THREE.Vector3(0, 0, -1), this.baseClipLimit),
-			new THREE.Plane(new THREE.Vector3(0, 0, 1), this.baseClipLimit)
+			new THREE.Plane(new THREE.Vector3(-1, 0, 0), MAP_PREVIEW_CONFIG.MAP_CLIPPING_FRAME_SIZE),
+			new THREE.Plane(new THREE.Vector3(1, 0, 0), MAP_PREVIEW_CONFIG.MAP_CLIPPING_FRAME_SIZE),
+			new THREE.Plane(new THREE.Vector3(0, 0, -1), MAP_PREVIEW_CONFIG.MAP_CLIPPING_FRAME_SIZE),
+			new THREE.Plane(new THREE.Vector3(0, 0, 1), MAP_PREVIEW_CONFIG.MAP_CLIPPING_FRAME_SIZE)
 		];
 	}
 
 	private	createVisualFrame(): THREE.Group {
-		const	size = this.baseClipLimit * 2;
+		const	size = MAP_PREVIEW_CONFIG.MAP_CLIPPING_FRAME_SIZE * 2;
+		const	height = 6;
 		const	group = new THREE.Group();
 
-		const	edgeGeometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(size, 4, size));
+		const	edgeGeometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(size, height, size));
 		const	edgeMaterial = new THREE.LineBasicMaterial({
 			color: 0x00ffff,
 			transparent: true,
@@ -137,7 +137,7 @@ export class Experience {
 		});
 		group.add(new THREE.LineSegments(edgeGeometry, edgeMaterial));
 
-		const	boxGeometry = new THREE.BoxGeometry(size, 4, size);
+		const	boxGeometry = new THREE.BoxGeometry(size, height, size);
 
 		const	boxMaterialSide = new THREE.MeshBasicMaterial({
 			color: 0x025ced,
@@ -232,25 +232,25 @@ export class Experience {
 
 		this.map = currentMap;
 
-		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, MAP_PREVIEW_CONFIG.MAP_POS.center, MAP_PREVIEW_CONFIG.SELECTED_SCALE);
+		this.setupPreviewVisual(this.map, this.mapContainer, this.mapWrapper, MAP_PREVIEW_CONFIG.MAP_POS_X.center, MAP_PREVIEW_CONFIG.SELECTED_SCALE);
 		
 		if (prevId !== currentId)
-			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, MAP_PREVIEW_CONFIG.MAP_POS.left, MAP_PREVIEW_CONFIG.SIDE_SCALE);
+			this.setupPreviewVisual(prevMap, this.leftContainer, this.leftWrapper, MAP_PREVIEW_CONFIG.MAP_POS_X.left, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.leftWrapper.visible = false;
 
 		if (nextId !== currentId)
-			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, MAP_PREVIEW_CONFIG.MAP_POS.right, MAP_PREVIEW_CONFIG.SIDE_SCALE);
+			this.setupPreviewVisual(nextMap, this.rightContainer, this.rightWrapper, MAP_PREVIEW_CONFIG.MAP_POS_X.right, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.rightWrapper.visible = false;
 
 		if (prevprevId !== currentId)
-			this.setupPreviewVisual(prevprevMap, this.farLeftContainer, this.farLeftWrapper, MAP_PREVIEW_CONFIG.MAP_POS.farLeft, MAP_PREVIEW_CONFIG.SIDE_SCALE);
+			this.setupPreviewVisual(prevprevMap, this.farLeftContainer, this.farLeftWrapper, MAP_PREVIEW_CONFIG.MAP_POS_X.farLeft, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.farLeftWrapper.visible = false;
 
 		if (nextnextId !== currentId)
-			this.setupPreviewVisual(nextnextMap, this.farRightContainer, this.farRightWrapper, MAP_PREVIEW_CONFIG.MAP_POS.farRight, MAP_PREVIEW_CONFIG.SIDE_SCALE);
+			this.setupPreviewVisual(nextnextMap, this.farRightContainer, this.farRightWrapper, MAP_PREVIEW_CONFIG.MAP_POS_X.farRight, MAP_PREVIEW_CONFIG.SIDE_SCALE);
 		else
 			this.farRightWrapper.visible = false;
 
@@ -295,9 +295,12 @@ export class Experience {
 		const factor = this.getResponsiveFactor();
 		const finalScale = scaleMult * factor;
 		const finalPosX = posX * factor;
-
+		
 		wrapper.scale.set(finalScale, finalScale, finalScale);
-		wrapper.position.set(finalPosX, 0, 0);
+		if (wrapper === this.mapWrapper)
+			wrapper.position.set(finalPosX, MAP_PREVIEW_CONFIG.MAP_POS_Y.center, MAP_PREVIEW_CONFIG.MAP_POS_Z);
+		else
+			wrapper.position.set(finalPosX, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z);
 		wrapper.rotation.set(0, 0, 0);
 		wrapper.visible = true;
 	}
@@ -307,7 +310,7 @@ export class Experience {
 	}
 
 	private checkCollisions() {
-		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING") return;
+		if (!this.pacman?.mesh || this.gameStore.appState !== "PLAYING" || this.gameStore.godmode) return;
 
 		const ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 		const pacmanPos = this.pacman.mesh.position;
@@ -420,13 +423,13 @@ export class Experience {
 			const factor = this.getResponsiveFactor();
 
 			this.mapWrapper.scale.setScalar(MAP_PREVIEW_CONFIG.SELECTED_SCALE * factor);
-			this.mapWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS.center, 0, 0);
+			this.mapWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS_X.center, MAP_PREVIEW_CONFIG.MAP_POS_Y.center, MAP_PREVIEW_CONFIG.MAP_POS_Z);
 
 			this.leftWrapper.scale.setScalar(MAP_PREVIEW_CONFIG.SIDE_SCALE * factor);
-			this.leftWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS.left * factor, 0, 0);
+			this.leftWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS_X.left * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z);
 
 			this.rightWrapper.scale.setScalar(MAP_PREVIEW_CONFIG.SIDE_SCALE * factor);
-			this.rightWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS.right * factor, 0, 0);
+			this.rightWrapper.position.set(MAP_PREVIEW_CONFIG.MAP_POS_X.right * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z);
 		}
 	}
 
@@ -437,12 +440,12 @@ export class Experience {
 		const	targetCenterScale = MAP_PREVIEW_CONFIG.SELECTED_SCALE * factor;
 
 		if (this.gameStore.appState === "MAP_PREVIEW_NEXT") {
-			this.leftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.farLeft  * factor, 0, 0), lerpFactor);
-			this.mapWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.left * factor, 0, 0), lerpFactor);
+			this.leftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.farLeft  * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
+			this.mapWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.left * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
 			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
-			this.rightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.center, 0, 0), lerpFactor);
+			this.rightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.center, MAP_PREVIEW_CONFIG.MAP_POS_Y.center, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
 			this.rightWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
-			this.farRightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.right * factor, 0, 0), lerpFactor);
+			this.farRightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.right * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
 
 			this.rotationToZero(lerpFactor);
 			if (this.rightWrapper.position.x <= 0.1) {
@@ -451,12 +454,12 @@ export class Experience {
 			}
 		}
 		else if (this.gameStore.appState === "MAP_PREVIEW_PREV") {
-			this.leftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.center, 0, 0), lerpFactor);
+			this.leftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.center, MAP_PREVIEW_CONFIG.MAP_POS_Y.center, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
 			this.leftWrapper.scale.lerp(new THREE.Vector3(targetCenterScale, targetCenterScale, targetCenterScale), lerpFactor);
-			this.mapWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.right * factor, 0, 0), lerpFactor);
+			this.mapWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.right * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
 			this.mapWrapper.scale.lerp(new THREE.Vector3(targetSideScale, targetSideScale, targetSideScale), lerpFactor);
-			this.rightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.farRight * factor, 0, 0), lerpFactor);
-			this.farLeftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS.left * factor, 0, 0), lerpFactor);
+			this.rightWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.farRight * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
+			this.farLeftWrapper.position.lerp(new THREE.Vector3(MAP_PREVIEW_CONFIG.MAP_POS_X.left * factor, MAP_PREVIEW_CONFIG.MAP_POS_Y.sides, MAP_PREVIEW_CONFIG.MAP_POS_Z), lerpFactor);
 
 			this.rotationToZero(lerpFactor);
 			if (this.leftWrapper.position.x >= -0.1) {
@@ -475,12 +478,15 @@ export class Experience {
 	private transitionToGame(delta: number) {
 		this.leftWrapper.visible = false;
 		this.rightWrapper.visible = false;
+		this.farLeftWrapper.visible = false;
+		this.farRightWrapper.visible = false;
 
 		const lerpFactor = MAP_PREVIEW_CONFIG.GAME_TRANSITION_LERP * delta;
 
 		this.rotationToZero(lerpFactor);
 
 		this.mapWrapper.scale.lerp(new THREE.Vector3(1, 1, 1), lerpFactor);
+		this.mapWrapper.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
 		this.mapContainer.position.lerp(new THREE.Vector3(0, 0, 0), lerpFactor);
 
 		if (this.pacmanSpawn) {
@@ -525,12 +531,13 @@ export class Experience {
 	}
 
 	private	updateSingleBox(planes: THREE.Plane[], wrapper: ClippingGroup, frame: THREE.Group) {
-		frame.visible = wrapper.visible;
+		frame.visible = wrapper.visible && this.gameStore.appState !== "MENU";
 		if (!wrapper.visible) return;
 
-		const	currentLimit = this.baseClipLimit * wrapper.scale.x;
+		const	currentLimit = MAP_PREVIEW_CONFIG.MAP_CLIPPING_FRAME_SIZE * wrapper.scale.x;
 		const	centerX = wrapper.position.x + this.lookTarget.x;
 		const	centerZ = wrapper.position.z + this.lookTarget.z;
+		const	centerY = wrapper.position.y;
 
 		planes[0].constant = centerX + currentLimit;
 		planes[1].constant = currentLimit - centerX;
@@ -538,7 +545,7 @@ export class Experience {
 		planes[3].constant = currentLimit - centerZ;
 
 		frame.scale.setScalar(wrapper.scale.x);
-		frame.position.set(centerX, 1, centerZ);
+		frame.position.set(centerX, centerY, centerZ);
 	}
 	
 	private startLoop() {
