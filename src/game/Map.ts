@@ -102,14 +102,16 @@ export class Map {
 					}
 				}
 
-				this.wallMesh = new THREE.InstancedMesh(geometry, nodeMaterial, wallPositions.length);
-				wallPositions.forEach((pos, i) => {
-					this.dummy.position.copy(pos);
-					this.dummy.updateMatrix();
-					this.wallMesh!.setMatrixAt(i, this.dummy.matrix);
-				});
-
-				this.scene.add(this.wallMesh);
+				if (wallPositions.length > 0) {
+					this.wallMesh = new THREE.InstancedMesh(geometry, nodeMaterial, wallPositions.length);
+					wallPositions.forEach((pos, i) => {
+						this.dummy.position.copy(pos);
+						this.dummy.updateMatrix();
+						this.wallMesh!.setMatrixAt(i, this.dummy.matrix);
+					});
+	
+					this.scene.add(this.wallMesh);
+				}
 				resolve();
 			});
 		});
@@ -174,23 +176,28 @@ export class Map {
 		}
 
 		this.totalPellets = pelletIndex + powerIndex;
-		this.pelletMesh = new THREE.InstancedMesh(pelletGeometry, material, pelletPositions.length);
-		this.powerMesh = new THREE.InstancedMesh(powerGeometry, material, powerPositions.length);
 
-		pelletPositions.forEach((pos, i) => {
-			this.dummy.position.copy(pos);
-			this.dummy.updateMatrix();
-			this.pelletMesh!.setMatrixAt(i, this.dummy.matrix);
-		});
-
-		powerPositions.forEach((pos, i) => {
-			this.dummy.position.copy(pos);
-			this.dummy.updateMatrix();
-			this.powerMesh!.setMatrixAt(i, this.dummy.matrix);
-		})
-
-		this.scene.add(this.pelletMesh);
-		this.scene.add(this.powerMesh);
+		if (pelletPositions.length > 0) {
+			this.pelletMesh = new THREE.InstancedMesh(pelletGeometry, material, pelletPositions.length);
+			
+			pelletPositions.forEach((pos, i) => {
+				this.dummy.position.copy(pos);
+				this.dummy.updateMatrix();
+				this.pelletMesh!.setMatrixAt(i, this.dummy.matrix);
+			});
+			this.scene.add(this.pelletMesh);
+		}
+		
+		if (powerPositions.length > 0) {
+			this.powerMesh = new THREE.InstancedMesh(powerGeometry, material, powerPositions.length);
+			powerPositions.forEach((pos, i) => {
+				this.dummy.position.copy(pos);
+				this.dummy.updateMatrix();
+				this.powerMesh!.setMatrixAt(i, this.dummy.matrix);
+			})
+	
+			this.scene.add(this.powerMesh);
+		}
 	}
 
 	
