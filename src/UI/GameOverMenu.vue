@@ -2,10 +2,11 @@
 	import { useGameStore } from '../stores/gameStore';
 
 	const	gameStore = useGameStore();
+	const	baseUrl = import.meta.env.BASE_URL;
 
 	const	menuButtons = [
-		{ label: '/UI/PauseMenu/Restart_text.png', action: 'restart' },
-		{ label: '/UI/PauseMenu/Quit_text.png', action: 'quit' }
+		{ label: `${baseUrl}UI/PauseMenu/Restart_text.png`, action: 'restart' },
+		{ label: `${baseUrl}UI/PauseMenu/Quit_text.png`, action: 'quit' }
 	];
 
 	const	handleMenuClick = (action: string) => {

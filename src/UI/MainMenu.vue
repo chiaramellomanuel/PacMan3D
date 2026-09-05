@@ -4,14 +4,15 @@
 	import { HUD_CONFIG } from '../game/Config';
 
 	const	gameStore = useGameStore();
+	const	baseUrl = import.meta.env.BASE_URL;
 	const	selectedIndex = ref(0);
 	let		lastMoveTime = 0;
 
 	const	menuButtons = [
-		{ label: '/UI/MainMenu/Play_text.png', action: 'play' },
-		{ label: '/UI/MainMenu/Leaderboard_text.png', action: 'leaderboard' },
-		{ label: '/UI/MainMenu/Stats_text.png', action: 'stats' },
-		{ label: '/UI/MainMenu/Settings_text.png', action: 'settings' }
+		{ label: `${baseUrl}UI/MainMenu/Play_text.png`, action: 'play' },
+		{ label: `${baseUrl}UI/MainMenu/Leaderboard_text.png`, action: 'leaderboard' },
+		{ label: `${baseUrl}UI/MainMenu/Stats_text.png`, action: 'stats' },
+		{ label: `${baseUrl}UI/MainMenu/Settings_text.png`, action: 'settings' }
 	];
 
 	const	handleMenuClick = (action: string) => {

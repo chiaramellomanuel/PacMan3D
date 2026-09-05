@@ -24,11 +24,11 @@ export const useGameStore = defineStore('game', {
 
 		selectedMapId: 'level_01',
 		avaiableMaps: [
-			{ id: 'level_01', name: 'Level 01', author: 'Official', fileUrl: '/maps/level_01.json' },
-			{ id: 'level_02', name: 'Level 02', author: 'Official', fileUrl: '/maps/level_02.json' },
-			{ id: 'level_03', name: 'Level 03', author: 'Official', fileUrl: '/maps/level_03.json' },
-			{ id: 'level_04', name: 'Level 04', author: 'Official', fileUrl: '/maps/level_04.json' },
-			{ id: 'giga', name: 'Gigantic', author: 'Official', fileUrl: '/maps/level_gigantic.json' },
+			{ id: 'level_01', name: 'Level 01', author: 'Official', fileUrl: 'maps/level_01.json' },
+			{ id: 'level_02', name: 'Level 02', author: 'Official', fileUrl: 'maps/level_02.json' },
+			{ id: 'level_03', name: 'Level 03', author: 'Official', fileUrl: 'maps/level_03.json' },
+			{ id: 'level_04', name: 'Level 04', author: 'Official', fileUrl: 'maps/level_04.json' },
+			{ id: 'giga', name: 'Gigantic', author: 'Official', fileUrl: 'maps/level_gigantic.json' },
 			// { id: 'test', name:'test_level', author: 'Official', fileUrl:'/maps/test_level.json' }
 		] as MapManifest[],
 		
@@ -106,7 +106,7 @@ export const useGameStore = defineStore('game', {
 			}
 	
 			try {
-				const response = await fetch(mapConfig.fileUrl);
+				const response = await fetch(`${import.meta.env.BASE_URL}${mapConfig.fileUrl}`);
 				if (!response.ok) throw new Error('Network response was not ok');
 				const data = await response.json();
 	
