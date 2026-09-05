@@ -1,7 +1,8 @@
-import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { Map } from './Map'
-import { DIRECTIONS } from './Constants'
+import * as THREE from 'three';
+import { MeshStandardNodeMaterial } from 'three/webgpu';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { Map } from './Map';
+import { DIRECTIONS } from './Constants';
 import { useGameStore } from '../stores/gameStore';
 import { GAME_CONFIG } from './Config';
 
@@ -32,8 +33,20 @@ export class PacMan {
 		}
 
 		const baseModel = await PacMan.loadPromise;
-
 		this.mesh = baseModel.clone();
+
+		this.mesh.traverse((child) => {
+			if ((child as THREE.Mesh).isMesh) {
+				const	mesh = child as THREE.Mesh;
+				const	originalMat = mesh.material as THREE.MeshStandardMaterial;
+
+				mesh.material = new MeshStandardNodeMaterial({
+					color: originalMat.color,
+					roughness: originalMat.roughness,
+					metalness: originalMat.metalness
+				});
+			}
+		});
 
 		this.mesh.position.set(startPoint.x, 0, startPoint.z);
 		this.mesh.rotation.y = 0;

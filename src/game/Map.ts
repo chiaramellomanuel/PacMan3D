@@ -124,14 +124,16 @@ export class Map {
 		if (doorPos.x === 0 && doorPos.z === 0) return;
 
 		const geometry = new THREE.BoxGeometry(this.tileSize, 2, 0.2);
-		const material = new THREE.MeshStandardMaterial({
+		const material = new THREE.MeshBasicMaterial({
 			color: 0xadd8e6,
 			transparent: true,
-			opacity: 0.6
+			opacity: 0.6,
+			depthWrite: false
 		});
 
 		this.doorMesh = new THREE.Mesh(geometry, material);
 		this.doorMesh.position.set(doorPos.x, 1, doorPos.z);
+
 		this.scene.add(this.doorMesh);
 	}
 

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DIRECTIONS, GHOST_STATE, GHOST_PERSONALITY, MAP_INDEX,  type GhostState, type GhostPersonality } from './Constants';
 import { Map } from './Map';
@@ -44,9 +45,16 @@ export class Ghost {
 			if ((child as THREE.Mesh).isMesh) {
 				const mesh = child as THREE.Mesh;
 				if (mesh.name.toLowerCase().includes('body')) {
-					mesh.material = new THREE.MeshStandardMaterial({
+					mesh.material = new MeshStandardNodeMaterial({
 						color: color,
 						roughness: 0.3
+					});
+				}
+				else {
+					const	originalMat = mesh.material as THREE.MeshStandardMaterial;
+					mesh.material = new MeshStandardNodeMaterial({
+						color: originalMat.color,
+						roughness: originalMat.roughness
 					});
 				}
 			}
