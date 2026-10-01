@@ -41,7 +41,7 @@ export const useGameStore = defineStore('game', {
 		pelletsRemaining: 0,
 		isLevelClear: false,
 
-		godmode: true
+		godmode: false
 	}),
 
 	getters: {
