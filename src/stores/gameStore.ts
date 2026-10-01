@@ -37,7 +37,7 @@ export const useGameStore = defineStore('game', {
 		score: 0,
 		highScore: 0,
 		ghostEatenMultiplier: 0,
-		lives: 1,
+		lives: 3,
 		pelletsRemaining: 0,
 		isLevelClear: false,
 
